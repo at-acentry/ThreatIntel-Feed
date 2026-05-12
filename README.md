@@ -11,10 +11,11 @@ This repository contains Acentry Security's automated Daily Threat Intelligence 
 
 ## Latest Brief
 
-📄 [latest.md](latest.md) — **2026-05-11**
+📄 [latest.md](latest.md) — **2026-05-12**
 
 ## Recent Archives
 
+- [2026-05-12](archive/2026-05-12.md)
 - [2026-05-11](archive/2026-05-11.md)
 - [2026-05-10](archive/2026-05-10.md)
 
