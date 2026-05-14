@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
-</p>
-
 <h1 align="center">ACENTRY SECURITY</h1>
 <h3 align="center">Daily Threat Intelligence Feed</h3>
 
@@ -11,10 +7,11 @@ This repository contains Acentry Security's automated Daily Threat Intelligence 
 
 ## Latest Brief
 
-📄 [latest.md](latest.md) — **2026-05-13**
+📄 [latest.md](latest.md) — **2026-05-14**
 
 ## Recent Archives
 
+- [2026-05-14](archive/2026-05-14.md)
 - [2026-05-13](archive/2026-05-13.md)
 - [2026-05-12](archive/2026-05-12.md)
 - [2026-05-11](archive/2026-05-11.md)
