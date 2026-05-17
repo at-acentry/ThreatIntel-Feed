@@ -1,227 +1,212 @@
 <!-- Acentry Daily Threat Intelligence Feed -->
 
+<p align="center">
+  <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
+</p>
+
 <h1 align="center">ACENTRY SECURITY</h1>
 <h3 align="center">Daily Threat Intelligence Feed</h3>
 
 ---
 
-**Date:** 2026-05-17  
-**Classification:** TLP:CLEAR — For Acentry Clients  
+**Date:** 2026-05-10
+**Classification:** TLP:CLEAR — For Acentry Clients
 **Analyst:** Acentry Threat Intelligence Team
 
-> **Daily Brief.** Today's threat landscape is shaped by three converging themes: active exploitation of a maximum-severity Cisco SD-WAN authentication bypass by an advanced, likely state-affiliated actor; a second Linux kernel local privilege escalation vulnerability ("Fragnesia," CVE-2026-46300) arriving on the heels of last month's "Copy Fail" (CVE-2026-31431), compressing patch windows across enterprise Linux estates; and continued IRGC-linked targeting of internet-exposed U.S. critical infrastructure PLCs. Iran-affiliated CyberAv3ngers remain the most operationally active OT/ICS threat actor this week, while Russia's Forest Blizzard maintains a persistent credential-harvesting posture via hijacked SOHO router DNS infrastructure that has now affected over 18,000 devices worldwide. Defenders should treat Cisco SD-WAN patching and Linux kernel updates as highest-priority weekend work.
-
----
+> **Daily Brief.** The PAN-OS Captive Portal zero-day (**CVE-2026-0300**, CVSS 9.3) remains the most consequential issue in the field — Palo Alto Networks Unit 42 has confirmed in-the-wild exploitation by a likely state-sponsored cluster (CL-STA-1132) with no patch available until **May 13, 2026**. CISA added it to the KEV catalog on May 6 with a May 9 federal remediation deadline. In parallel, the **"Copy Fail" Linux kernel LPE (CVE-2026-31431)** offers deterministic root on virtually every Linux distro shipped since 2017, making it an extremely attractive container/multi-tenant escape primitive. Operators should treat any internet-exposed PAN-OS User-ID portal as compromised until proven otherwise and prioritize Linux kernel patching across cloud workloads this week.
 
 ## Executive Summary
 
-- **CISA KEV:** Cisco SD-WAN CVE-2026-20182 (CVSS 10.0) is actively exploited in the wild by UAT-8616, enabling unauthenticated remote admin takeover of SD-WAN Controller and Manager — a Metasploit module is now public.
-- **Linux LPE surge:** Two distinct kernel privilege-escalation vulnerabilities — CVE-2026-31431 ("Copy Fail," page-cache algif_aead) and CVE-2026-46300 ("Fragnesia," XFRM ESP-in-TCP) — affect virtually all major Linux distributions; both have public PoC exploit code.
-- **Iran/IRGC critical infrastructure ops:** CyberAv3ngers continues live exploitation of internet-exposed Rockwell/Allen-Bradley PLCs (CompactLogix, Micro850) across U.S. water, energy, and government sectors using legitimate vendor tooling, no zero-days required.
-- **Forest Blizzard FrostArmada disrupted but remains a concern:** DOJ/FBI sinkholed the botnet infrastructure in April 2026 but the actor is assessed to rebuild; 18,000+ SOHO routers were weaponized for DNS-hijack credential theft targeting M365 and OAuth tokens.
-- **South American telecom espionage:** China-linked UAT-9244 (FamousSparrow overlap) is deploying a novel three-implant toolkit — TernDoor, PeerTime, BruteEntry — against South American telecoms, expanding the Salt Typhoon operational pattern to new geographies.
-- **May Patch Tuesday:** Microsoft resolved 118 CVEs on May 12, including critical Windows DNS Client and Netlogon RCE flaws; Fortinet patched an unauthenticated FortiSandbox authorization bypass.
+- **CVE-2026-0300 (PAN-OS Captive Portal)** — actively exploited unauthenticated RCE as root; no patch yet; restrict portal exposure immediately and hunt for the published Unit 42 IOCs.
+- **CVE-2026-31431 "Copy Fail" (Linux kernel)** — deterministic 4-byte write → root on essentially all distros since 2017; KEV-listed; FCEB deadline May 15, 2026.
+- **CVE-2026-23918 (Apache HTTP/2)** — critical DoS / potential RCE; patch any HTTP/2-fronted stack.
+- **CVE-2026-6973 (Ivanti EPMM)** — improper input validation; KEV-listed (May 7).
+- **Salt Typhoon (China-nexus)** — continued telecom-sector espionage against US carriers (AT&T, Verizon reporting); call-metadata and intercept tradecraft persists into Q2 2026.
+- **APT28 PROMPTSTEAL** — first observed live malware that queries an LLM (Qwen2.5-Coder via Hugging Face) to generate Windows commands at runtime; Mandiant urges a shift from IOCs to behavioral IOAs.
 
----
-
-## Critical CVEs (Last 24–72h / Lookback to May 12)
+## Critical CVEs (Last 72h)
 
 | CVE ID | CVSS | Vendor / Product | Description | Exploited | Patch / Mitigation | Source |
-|--------|------|------------------|-------------|-----------|-------------------|--------|
-| CVE-2026-20182 | 10.0 | Cisco / Catalyst SD-WAN Controller & Manager | Authentication bypass in vdaemon (DTLS UDP/12346) via broken peering handshake; grants unauthenticated admin access, SSH key injection, NETCONF reconfiguration | **Yes — KEV; active exploitation by UAT-8616; Metasploit module public** | Upgrade immediately; see cisco-sa-sdwan-authbp-qwCX8D4v; review /var/log/auth.log for `Accepted publickey for vmanage-admin` from unknown IPs | [Cisco Talos](https://blog.talosintelligence.com/sd-wan-ongoing-exploitation/) |
-| CVE-2026-31431 | 7.8 | Linux Kernel (≥2017) / algif_aead (AF_ALG) | "Copy Fail" — logic flaw in cryptographic subsystem allows unprivileged local user to modify kernel page cache of read-only files; root access without disk forensic trace | **Yes — KEV; FCEB deadline May 15** | Apply vendor kernel updates; temporary: blacklist `algif_aead` module | [Microsoft Security Blog](https://www.microsoft.com/en-us/security/blog/2026/05/01/cve-2026-31431-copy-fail-vulnerability-enables-linux-root-privilege-escalation/) |
-| CVE-2026-6973 | 7.2 | Ivanti / Endpoint Manager Mobile (EPMM ≤12.8.0.0) | Improper input validation allows authenticated admin RCE; attackers first harvested creds via CVE-2026-1340 then chained to gain code execution | **Yes — KEV; FCEB deadline May 10; limited targeted attacks** | Patch to 12.6.1.1, 12.7.0.1, or 12.8.0.1; on-prem only; cloud EPMM unaffected | [Ivanti](https://www.ivanti.com/blog/may-2026-epmm-security-update) |
-| CVE-2026-46300 | 7.8 | Linux Kernel / XFRM ESP-in-TCP (SKBFL_SHARED_FRAG) | "Fragnesia" — Dirty Frag variant in XFRM subsystem allows reliable arbitrary byte-write to page cache of read-only files, yielding root; working PoC released | **No KEV yet; PoC public** | Apply distribution kernel updates; prior Dirty Frag patches do NOT cover this; separate patch required | [BleepingComputer](https://www.bleepingcomputer.com/news/security/new-fragnesia-linux-flaw-lets-attackers-gain-root-privileges/) |
-| CVE-2026-26083 | Critical | Fortinet / FortiSandbox, FortiSandbox Cloud, FortiSandbox PaaS | Missing authorization flaw allows unauthenticated remote attacker to access restricted sandbox management functionality | No (patched May 12) | Apply May 12 FortiSandbox security update | [Cybersecurity News](https://cybersecuritynews.com/fortinet-enterprise-products-vulnerabilities/) |
-| CVE-2026-41096 | Critical | Microsoft / Windows DNS Client | Remote code execution in DNS client stack; unauthenticated network-accessible exploitation possible | No (patched May 12) | Apply Microsoft May 2026 Patch Tuesday cumulative update | [Tenable](https://www.tenable.com/blog/microsofts-may-2026-patch-tuesday-addresses-118-cves-cve-2026-41103) |
-| CVE-2026-41089 | Critical | Microsoft / Windows Netlogon | RCE in Netlogon authentication processing; critical Windows domain trust path | No (patched May 12) | Apply Microsoft May 2026 Patch Tuesday cumulative update | [BleepingComputer](https://www.bleepingcomputer.com/news/microsoft/microsoft-may-2026-patch-tuesday-fixes-120-flaws-no-zero-days/) |
-| CVE-2026-20127 | 10.0 | Cisco / Catalyst SD-WAN Controller | Earlier SD-WAN auth bypass (same actor UAT-8616); exploited since 2023; root achievable via CVE-2022-20775 chaining | **Yes — KEV; historically exploited** | Upgrade; see Talos SD-WAN Hardening Guide | [Cisco Talos](https://blog.talosintelligence.com/uat-8616-sd-wan/) |
-| CVE-2024-57726 | 9.9 | SimpleHelp / Remote Support | Missing authorization allows full system takeover | **Yes — KEV** | Patch to latest SimpleHelp version | [The Hacker News](https://thehackernews.com/2026/04/cisa-adds-8-exploited-flaws-to-kev-sets.html) |
-
----
+|--------|-----:|------------------|-------------|-----------|--------------------|--------|
+| CVE-2026-0300 | 9.3 | Palo Alto Networks PAN-OS (User-ID Captive Portal) | Unauthenticated buffer overflow → root RCE on PA-Series & VM-Series firewalls. | Yes (KEV, CL-STA-1132) | No patch until 2026-05-13. Disable captive portal or restrict to trusted zones. ATP Threat ID 510019 (PAN-OS 11.1+). | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) · [PAN advisory](https://security.paloaltonetworks.com/CVE-2026-0300) · [CISA KEV](https://www.cisa.gov/news-events/alerts/2026/05/07/cisa-adds-one-known-exploited-vulnerability-catalog) |
+| CVE-2026-31431 | 7.8 | Linux kernel (`algif_aead` in AF_ALG) | "Copy Fail" — deterministic LPE in cryptographic subsystem; 732-byte exploit → root on essentially all distros shipped since 2017. | Yes (KEV) | Apply distro kernel updates (Ubuntu, RHEL, SUSE, Amazon Linux all shipping). Interim: blacklist `algif_aead` or block AF_ALG socket creation. | [Unit 42](https://unit42.paloaltonetworks.com/cve-2026-31431-copy-fail/) · [Microsoft](https://www.microsoft.com/en-us/security/blog/2026/05/01/cve-2026-31431-copy-fail-vulnerability-enables-linux-root-privilege-escalation/) · [Red Hat](https://access.redhat.com/security/vulnerabilities/RHSB-2026-02) |
+| CVE-2026-23918 | Critical | Apache HTTP Server (HTTP/2) | Flaw enabling denial-of-service and potential RCE in HTTP/2 handling. | Reported risk | Update to fixed Apache HTTP Server release; disable HTTP/2 if not required. | [The Hacker News](https://thehackernews.com/2026/05/critical-apache-http2-flaw-cve-2026.html) |
+| CVE-2026-6973 | High | Ivanti Endpoint Manager Mobile (EPMM) | Improper input validation. | Yes (KEV, added 2026-05-07) | Apply Ivanti security update for EPMM per vendor advisory. | [CISA KEV](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) |
+| CVE-2026-32202 | High | Microsoft Windows | Actively exploited Windows component flaw added to KEV alongside ConnectWise issue. | Yes (KEV) | Apply current Microsoft monthly rollup. | [The Hacker News](https://thehackernews.com/2026/04/cisa-adds-actively-exploited.html) |
+| CVE-2024-1708 | High | ConnectWise ScreenConnect | Path traversal / authentication bypass chain — re-added to KEV with renewed exploitation. | Yes (KEV) | Upgrade ScreenConnect to vendor-fixed build immediately; rotate all credentials. | [The Hacker News](https://thehackernews.com/2026/04/cisa-adds-actively-exploited.html) |
+| CVE-2026-20127 | High | Cisco Catalyst SD-WAN Manager | Vulnerability under emergency patch advisory; targeted in critical infrastructure intrusions. | Yes | Apply Cisco emergency patch per PSIRT. | [Greenbone](https://www.greenbone.net/en/blog/emergency-patch-cve-2026-20127-in-cisco-catalyst-sd-wan-actively-exploited-against-critical-infrastructure/) |
+| CVE-2026-20122 / 20128 / 20133 | High | Cisco Catalyst SD-WAN Manager | Three additional flaws added to CISA KEV in April. | Yes (KEV) | Apply Cisco PSIRT updates. | [CISA](https://www.cisa.gov/news-events/alerts/2026/04/20/cisa-adds-eight-known-exploited-vulnerabilities-catalog) |
 
 ## APT / Threat Actor Activity
 
-### Forest Blizzard / APT28 — FrostArmada (aliases: STRONTIUM, Fancy Bear, Sednit, Iron Twilight)
+### CL-STA-1132 (likely state-sponsored, China-nexus suspected)
+- **Targets:** Internet-exposed Palo Alto Networks PAN-OS firewalls (PA-Series and VM-Series) running the User-ID Captive Portal.
+- **TTPs:**
+  - Initial access via **CVE-2026-0300** unauthenticated buffer overflow → shellcode injected into nginx worker (`T1190`, `T1059`).
+  - Post-exploit deployment of open-source tunneling: **EarthWorm** and **ReverseSocks5** (`T1090`, `T1572`).
+  - Active Directory enumeration using firewall service-account credentials targeting domain root and `DomainDnsZones` (`T1018`, `T1087.002`).
+  - Aggressive log destruction: clearing kernel crash messages, deleting nginx crash entries/core dumps, removing `ptrace` injection evidence and SUID privilege-escalation binaries (`T1070.002`, `T1070.004`).
+  - SAML flood used to fail-over to a second device and inherit traffic, then re-exploit (`T1499`).
+- **Recent activity:** First exploitation observed 2026-04-09; confirmed RCE ~2026-04-16; secondary device compromise 2026-04-29.
+- **Attribution confidence:** Medium — Unit 42 assesses likely state-sponsored based on tradecraft, target selection, and operational restraint.
+- **Sources:** [Unit 42 threat brief](https://unit42.paloaltonetworks.com/captive-portal-zero-day/), [Cybersecurity Dive](https://www.cybersecuritydive.com/news/palo-alto-networks-state-linked-zero-day/819588/)
 
-- **Targets:** Government agencies (Ministries of Foreign Affairs, law enforcement), logistics, defense contractors, telcos, IT/cloud providers — primarily North Africa, Central America, Southeast Asia, Europe; 120+ countries affected
-- **TTPs:** SOHO router exploitation (MikroTik, TP-Link) to modify DHCP/DNS settings; attacker-in-the-middle credential interception via malicious DNS resolver VPSs; DNS over TLS (DoT) for stealth; passive OAuth token harvesting post-MFA (`T1557` — AitM, `T1040` — network sniffing, `T1556` — modify auth process, `T1071.001` — web protocols)
-- **Recent activity:** Campaign (codenamed FrostArmada by Lumen Black Lotus Labs) peaked December 2025 with 18,000+ moderate-confidence victims; DOJ and FBI conducted court-authorized sinkhole of C2 infrastructure in April 2026. Lumen assessed the actor will rebuild. Two confirmed AitM VPS nodes: `64.120.31.96` (first active May 2025, targeting Afghan government and Italian Nethesis firewalls) and `79.141.160.78` (surged August 2025 following NCSC Authentic Antics disclosure).
-- **Attribution confidence:** High — assessed with high confidence to be GRU Unit 26165 (NCSC, Lumen, Microsoft MSTIC, FBI, DOJ joint assessment)
-- **Sources:** [Lumen Black Lotus Labs](https://www.lumen.com/blog/en-us/frostarmada-forest-blizzard-dns-hijacking), [Microsoft Security Blog](https://www.microsoft.com/en-us/security/blog/2026/04/07/soho-router-compromise-leads-to-dns-hijacking-and-adversary-in-the-middle-attacks/), [The Hacker News](https://thehackernews.com/2026/04/russian-state-linked-apt28-exploits.html)
+### Salt Typhoon (a.k.a. APT41 sub-cluster / Brass Typhoon, China-nexus)
+- **Targets:** US telecommunications providers (AT&T, Verizon among reported victims), ISPs and lawful-intercept infrastructure.
+- **TTPs:** Exploitation of network-edge devices for persistence; abuse of lawful-intercept platforms; credential and call-metadata exfiltration; long-dwell counterintelligence operations.
+- **Recent activity:** 2024–2026 multi-campaign telecom intrusions; new Q1/Q2 2026 reporting indicates continued presence and re-targeting after disclosure.
+- **Attribution confidence:** High — Microsoft, ESET and US government attribution to PRC state-sponsored activity.
+- **Sources:** [Wikipedia: Salt Typhoon](https://en.wikipedia.org/wiki/Salt_Typhoon) · [Aviatrix research](https://aviatrix.ai/threat-research-center/salt-typhoon-2026-telecom-breach/) · [Congress CRS IF12798](https://www.congress.gov/crs-product/IF12798) · [Obsidian Security](https://www.obsidiansecurity.com/incident-watch/apt41-barium-targets-telecom-providers-via-kernel-level-backdoor-espionage-campaign)
 
----
+### Volt Typhoon (China-nexus, critical-infrastructure pre-positioning)
+- **Targets:** US communications, energy, water and transportation sector OT/IT.
+- **TTPs:** Living-off-the-land (LOTL) on Windows; compromised SOHO routers and Fortinet edge devices used as proxies; long-term, low-noise persistence aimed at disruptive options rather than espionage.
+- **Recent activity:** Continued use of EarthWorm and similar tunneling tools (overlap with CL-STA-1132 toolset).
+- **Attribution confidence:** High (US government joint advisory).
+- **Sources:** [MixMode](https://www.mixmode.ai/blog/volt-typhoon-salt-typhoon-apt41-this-is-no-longer-a-drill) · [NJCCIC](https://www.cyber.nj.gov/threat-landscape/nation-state-threat-analysis-reports/china-linked-cyber-operations-targeting-us-critical-infrastructure)
 
-### CyberAv3ngers / Storm-0784 / Bauxite / UNC5691 (aliases: Shahid Kaveh Group, IRGC-CEC)
-
-- **Targets:** U.S. critical infrastructure — Water and Wastewater Systems (WWS), Energy, Government/Facilities; Rockwell Automation CompactLogix and Micro850 PLCs internet-facing via cellular modems
-- **TTPs:** Direct access to exposed PLCs using legitimate Rockwell Studio 5000 Logix Designer software; HMI/SCADA display manipulation; no zero-days required — relies entirely on misconfigurations and internet exposure; IOCONTROL custom malware for IoT/OT persistence (`T1595` — active scanning, `T1133` — external remote services, `T1565` — data manipulation, `T1496` — resource hijacking)
-- **Recent activity:** Active exploitation of 3,891 U.S.-exposed Rockwell hosts (out of 5,219 globally per Censys) documented since March 2026 in joint CISA advisory (AA26-097A). At least some victims experienced operational disruption and financial loss. Group continues to operate publicly on Telegram, posting screenshots of compromised systems. Historical IOCONTROL malware (`/usr/bin/iocontrol`) deployed on fuel management systems, IoT cameras, PLCs via MQTT C2.
-- **Attribution confidence:** High — U.S. Treasury sanctioned six IRGC-CEC officials in 2024; $10M Rewards for Justice bounty active; confirmed IRGC-CEC nexus
-- **Sources:** [CISA Advisory AA26-097A](https://www.cisa.gov/news-events/cybersecurity-advisories/aa26-097a), [Claroty Team82](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol), [Censys](https://censys.com/blog/iranian-affiliated-apt-targeting-rockwell-allen-bradley-plcs/)
-
----
-
-### UAT-9244 / FamousSparrow — South American Telecom Campaign (China-nexus)
-
-- **Targets:** Telecommunication service providers in South America; initial targeting observed since 2024
-- **TTPs:** Three previously undocumented implants deployed: **TernDoor** (Windows backdoor, CrowDoor/SparrowDoor variant — `T1059.003`), **PeerTime** (Linux ELF backdoor using BitTorrent P2P for C2 — `T1571`), **BruteEntry** (Go-based Linux ORB relay tool — brute-forces SSH, PostgreSQL, Apache Tomcat; `T1110.003`). TTP overlap with FamousSparrow/Salt Typhoon; Talos cannot confirm direct cluster connection.
-- **Recent activity:** Campaign publicly disclosed March 2026 by Cisco Talos (tracked as UAT-9244). BruteEntry converts compromised edge Linux devices into operational relay boxes (ORBs) that actively scan and brute-force enterprise network perimeters. Tactical TTPs consistent with Salt Typhoon's 2026 expansion into new geographies.
-- **Attribution confidence:** Medium — China-nexus assessed based on TTP overlap with FamousSparrow/Salt Typhoon; direct attribution to PRC state pending
-- **Sources:** [Cisco Talos](https://blog.talosintelligence.com/uat-9244/), [The Hacker News](https://thehackernews.com/2026/03/china-linked-hackers-use-terndoor.html), [BleepingComputer](https://www.bleepingcomputer.com/news/security/chinese-state-hackers-target-telcos-with-new-malware-toolkit/)
-
----
-
-### UAT-8616 — Cisco SD-WAN Exploitation (Sophisticated State-Level Actor)
-
-- **Targets:** High-value organizations including critical infrastructure; Cisco Catalyst SD-WAN deployments globally
-- **TTPs:** Authentication bypass via crafted DTLS peering requests to vdaemon service (UDP/12346); post-compromise: SSH key injection into `vmanage-admin`, NETCONF configuration manipulation, malicious account creation, log erasure, software version downgrade to exploit CVE-2022-20775 for root escalation (`T1098` — account manipulation, `T1070.002` — clear linux logs, `T1078` — valid accounts, `T1059` — command scripting)
-- **Recent activity:** Active exploitation of CVE-2026-20127 observed since 2023; CVE-2026-20182 exploitation confirmed May 2026; Rapid7 published Metasploit module significantly lowering exploitation barrier. ACSC (Australia), NCSC (UK), and CCCS (Canada) all published joint hunt guidance.
-- **Attribution confidence:** Low (public) — Talos assesses with high confidence as "highly sophisticated cyber threat actor"; nation-state level capability strongly implied; specific attribution not yet published
-- **Sources:** [Cisco Talos](https://blog.talosintelligence.com/sd-wan-ongoing-exploitation/), [Rapid7](https://www.rapid7.com/blog/post/ve-cve-2026-20182-critical-authentication-bypass-cisco-catalyst-sd-wan-controller-fixed/), [CISA](https://www.cisa.gov/news-events/alerts/2026/05/07/cisa-adds-one-known-exploited-vulnerability-catalog)
-
----
+### APT28 / FROZENLAKE (Russia, GRU 26165) — PROMPTSTEAL
+- **Targets:** Ukrainian government and military entities.
+- **TTPs:** PyInstaller-packaged data-mining implant masquerading as image-generation software; queries the **Qwen2.5-Coder-32B-Instruct** model on Hugging Face at runtime to dynamically generate Windows commands for document theft (`T1059.003`, `T1041`). First publicly observed live deployment of LLM-querying malware.
+- **Recent activity:** Tracked by Google Threat Intelligence Group through 2025–2026; companion to the experimental **PROMPTFLUX** Gemini-rewriter dropper.
+- **Attribution confidence:** High (GTIG attribution).
+- **Sources:** [Google Cloud — AI risk & resilience](https://cloud.google.com/security/resources/ai-risk-and-resilience) · [The Hacker News on PROMPTFLUX](https://thehackernews.com/2025/11/google-uncovers-promptflux-malware-that.html) · [The Record](https://therecord.media/new-malware-uses-ai-to-adapt)
 
 ## Indicators of Compromise (IOCs)
 
-> Indicators are presented un-defanged for direct ingestion. Handle in an isolated environment.
+> Indicators below are presented un-defanged for direct ingestion into SIEM/EDR. Handle in an isolated environment. All IOCs in this section are sourced from the Unit 42 threat brief on CVE-2026-0300 ([source](https://unit42.paloaltonetworks.com/captive-portal-zero-day/)) unless otherwise noted.
 
 ### File Hashes (SHA-256)
 
 | Hash | Family / Threat | First Seen | Source |
-|------|-----------------|------------|--------|
-| 1b39f9b2b96a6586c4a11ab2fdbff8fdf16ba5a0ac7603149023d73f33b84498 | IOCONTROL — CyberAv3ngers ICS/IoT backdoor; ARM-32 BE; extracted from Gasboy/ORPAK fuel management system | Dec 2024 | [Claroty Team82](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol) |
+|------|-----------------|-----------:|--------|
+| e11f69b49b6f2e829454371c31ebf86893f82a042dae3f2faf63dcd84f97a584 | EarthWorm tunneling tool (CL-STA-1132) | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
 
 ### Network — IPs
 
 | IP | Threat | First Seen | Source |
-|----|--------|------------|--------|
-| 64.120.31.96 | Forest Blizzard / FrostArmada — AitM DNS hijack node #1; first received DNS requests May 2025; targeted Afghan government and Italian Nethesis firewalls | May 2025 | [Lumen Black Lotus Labs](https://www.lumen.com/blog/en-us/frostarmada-forest-blizzard-dns-hijacking) |
-| 79.141.160.78 | Forest Blizzard / FrostArmada — AitM DNS hijack node #2; supported DNS over TLS (DoT); global victim scope; surged Aug 2025 post-NCSC disclosure | Aug 2025 | [Lumen Black Lotus Labs](https://www.lumen.com/blog/en-us/frostarmada-forest-blizzard-dns-hijacking) |
-| 159.100.6.69 | IOCONTROL / CyberAv3ngers — MQTT C2 server (port 8883); hosted in Germany; also runs RabbitMQ management UI (port 15672) | Dec 2023 | [Claroty Team82](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol) |
+|----|--------|-----------:|--------|
+| 67.206.213.86 | CL-STA-1132 infrastructure (PAN-OS exploitation) | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| 136.0.8.48 | CL-STA-1132 infrastructure | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| 146.70.100.69 | CL-STA-1132 C2 staging (EarthWorm download) | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| 149.104.66.84 | CL-STA-1132 infrastructure | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
 
-### Network — Domains / URLs
-
-| Indicator | Threat | First Seen | Source |
-|-----------|--------|------------|--------|
-| uuokhhfsdlk.tylarion867mino.com | IOCONTROL / CyberAv3ngers — MQTT C2 domain; uses Cloudflare DoH for resolution to evade DNS inspection; resolves to 159.100.6.69 | Nov 2023 | [Claroty Team82](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol) |
-| tylarion867mino.com | IOCONTROL / CyberAv3ngers — C2 parent domain; registered Nov 23, 2023; associated with Orpak/Gasboy fuel system compromise campaign | Nov 2023 | [Claroty Team82](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol) |
-| ocferda.com | IOCONTROL / CyberAv3ngers — Older C2 domain (2023-era); previously resolved to same C2 IP 159.100.6.69 | 2023 | [Claroty Team82](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol) |
-
-### Email Indicators
+### Network — URLs
 
 | Indicator | Threat | First Seen | Source |
-|-----------|--------|------------|--------|
-| Spear-phish lures referencing Cisco SD-WAN security advisories or VPN maintenance notices | UAT-8616 / Cisco SD-WAN campaign — social engineering to harvest credentials for chained attacks on SD-WAN appliances | 2025–2026 | [Cisco Talos](https://blog.talosintelligence.com/sd-wan-ongoing-exploitation/) |
-| Lures referencing "Ivanti EPMM security update required" or "MDM certificate renewal" | Ivanti EPMM CVE-2026-6973 campaign — credential harvesting prerequisite via CVE-2026-1340 | May 2026 | [SecurityWeek](https://www.securityweek.com/ivanti-patches-epmm-zero-day-exploited-in-targeted-attacks/) |
+|-----------|--------|-----------:|--------|
+| http://146.70.100.69:8000/php_sess | EarthWorm payload retrieval | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| https://github.com/Acebond/ReverseSocks5/releases/download/v2.2.0/ReverseSocks5-v2.2.0-linux-amd64.tar.gz | ReverseSocks5 download (legitimate repo abused by CL-STA-1132) | 2026-04 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
 
----
+### Host — File-system Artifacts
+
+| Path | Threat | Source |
+|------|--------|--------|
+| /var/tmp/linuxap | CL-STA-1132 tunneling-tool drop location | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| /var/tmp/linuxda | CL-STA-1132 tunneling-tool drop location | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| /var/tmp/linuxupdate | CL-STA-1132 tunneling-tool drop location | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| /tmp/.c | Unidentified Python script staged by CL-STA-1132 | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| /tmp/R5, /var/R5 | ReverseSocks5 binary location | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+
+### HTTP / User-Agent
+
+| Indicator | Threat | Source |
+|-----------|--------|--------|
+| `Safari/532.31 Mozilla/5.5 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0` | Attacker user-agent observed in PAN-OS exploitation (note malformed Safari version `532.31` and `Mozilla/5.5`) | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| Repeated HTTP POST to `/php/login.php` or `/User-ID/` with unusually long parameter values | CVE-2026-0300 exploitation attempt | [Wiz](https://www.wiz.io/blog/critical-vulnerability-in-pan-os-exploited-in-the-wild-cve-2026-0300) |
+
+> **Note on broader IOC feeds:** ThreatFox and MalwareBazaar continue to publish high-volume daily IOC sets (see [ThreatFox 2026-05-09 feed](https://radar.offseq.com/threat/threatfox-iocs-for-2026-05-09-6a18791b)). For ransomware-tagged indicators, query the [ThreatFox Ransomware tag](https://threatfox.abuse.ch/browse/tag/Ransomware/) directly for live results.
 
 ## YARA Rules
 
+The following rules detect tooling and exploitation artifacts associated with the CL-STA-1132 PAN-OS campaign. Test in your environment before promoting to blocking mode.
+
 ```yara
-/*
- * IOCONTROL ICS/IoT Backdoor Detection
- * Based on: Claroty Team82 analysis (Dec 2024)
- * Threat: CyberAv3ngers / IRGC-CEC IOCONTROL malware
- * Reference: https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol
- * Adapted by: Acentry Threat Intelligence Team
- * TLP: CLEAR
- */
-rule Acentry_IOCONTROL_CyberAv3ngers {
+rule Acentry_CLSTA1132_EarthWorm_Tunneler
+{
     meta:
-        author      = "Claroty Team82 / Acentry TI"
-        date        = "2026-05-17"
-        description = "Detects IOCONTROL IoT/OT backdoor used by Iran-linked CyberAv3ngers against critical infrastructure PLCs, HMIs, routers, and fuel management systems"
-        reference   = "https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol"
-        hash        = "1b39f9b2b96a6586c4a11ab2fdbff8fdf16ba5a0ac7603149023d73f33b84498"
+        author      = "Acentry Threat Intelligence"
+        date        = "2026-05-10"
+        description = "Detects the EarthWorm SOCKS5 tunneling tool sample observed in the Unit 42 CL-STA-1132 / CVE-2026-0300 PAN-OS exploitation cluster."
+        reference   = "https://unit42.paloaltonetworks.com/captive-portal-zero-day/"
+        hash        = "e11f69b49b6f2e829454371c31ebf86893f82a042dae3f2faf63dcd84f97a584"
         tlp         = "CLEAR"
-        family      = "IOCONTROL"
-        actor       = "CyberAv3ngers / IRGC-CEC"
     strings:
-        $s1 = "/usr/bin/iocontrol" ascii fullword
-        $s2 = "/etc/rc3.d/S93InitSystemd.sh" ascii fullword
-        $s3 = "/tmp/iocontrol" ascii
-        $s4 = "/var/run/iocontrol.pid" ascii fullword
-        $s5 = "tylarion867mino" ascii
-        $s6 = "uuokhhfsdlk" ascii
-        $s7 = "855958ce-6483-4953-8c18-3f9625d88c27" ascii
-        $s8 = "S93InitSystemd" ascii
-        $mqtt = { 10 ?? 00 04 4D 51 54 54 }
+        $s1 = "rssocks" ascii
+        $s2 = "lcx_listen" ascii
+        $s3 = "lcx_slave" ascii
+        $s4 = "lcx_tran" ascii
+        $s5 = "EarthWorm" ascii nocase
     condition:
-        (uint32(0) == 0x464C457F or uint16(0) == 0x5A4D) and
-        (3 of ($s*) or $mqtt)
+        uint32(0) == 0x464C457F        // ELF magic
+        and filesize < 5MB
+        and 3 of ($s*)
 }
 
-/*
- * FrostArmada / Forest Blizzard DNS Hijack IOC Detection
- * Based on: Lumen Black Lotus Labs FrostArmada analysis (April 2026)
- * Threat: APT28 / Forest Blizzard SOHO router DNS hijack botnet
- * Reference: https://www.lumen.com/blog/en-us/frostarmada-forest-blizzard-dns-hijacking
- * Adapted by: Acentry Threat Intelligence Team
- * TLP: CLEAR
- */
-rule Acentry_FrostArmada_IOC {
+rule Acentry_CLSTA1132_PANOS_Drop_Paths
+{
     meta:
-        author      = "Lumen Black Lotus Labs / Acentry TI"
-        date        = "2026-05-17"
-        description = "Detects references to Forest Blizzard FrostArmada AitM infrastructure IPs in scripts, configs, or memory artifacts from compromised routers"
-        reference   = "https://www.lumen.com/blog/en-us/frostarmada-forest-blizzard-dns-hijacking"
+        author      = "Acentry Threat Intelligence"
+        date        = "2026-05-10"
+        description = "Hunts for shell scripts or staging artifacts that reference the Unit 42-published drop paths used by CL-STA-1132 on compromised PAN-OS firewalls."
+        reference   = "https://unit42.paloaltonetworks.com/captive-portal-zero-day/"
         tlp         = "CLEAR"
-        actor       = "Forest Blizzard / APT28 / GRU Unit 26165"
-        campaign    = "FrostArmada"
     strings:
-        $ip1 = "64.120.31.96" ascii
-        $ip2 = "79.141.160.78" ascii
-        $doh  = "application/dns-json" ascii
-        $dhcp = "dns-server=" ascii
+        $p1 = "/var/tmp/linuxap" ascii
+        $p2 = "/var/tmp/linuxda" ascii
+        $p3 = "/var/tmp/linuxupdate" ascii
+        $p4 = "/tmp/R5" ascii
+        $p5 = "/var/R5" ascii
+        $p6 = "146.70.100.69:8000/php_sess" ascii
     condition:
-        any of ($ip*) or
-        ($doh and $dhcp)
+        any of them
 }
 ```
 
----
-
 ## Recommended Actions
 
-- [ ] **SOC:** Hunt for CVE-2026-20182 exploitation in Cisco SD-WAN environments — review `/var/log/auth.log` for unexpected `Accepted publickey for vmanage-admin`; look for unauthorized vHub peering events in vdaemon logs; alert on SSH key additions to `/home/vmanage-admin/.ssh/authorized_keys` and `/home/root/.ssh/authorized_keys`.
-- [ ] **SOC:** Block/alert on IOCONTROL IOCs — IP `159.100.6.69` on MQTT ports 1883/8883; domains `tylarion867mino.com` and `uuokhhfsdlk.tylarion867mino.com`; hunt for processes named `iocontrol` and persistence at `/etc/rc3.d/S93InitSystemd.sh` across Linux/embedded endpoints.
-- [ ] **SOC:** Hunt FrostArmada residual IOCs — check outbound DNS/DoT from SOHO router management IPs to `64.120.31.96` or `79.141.160.78`; review M365 sign-in logs for OAuth token use from unrecognized VPS ASNs (Eastern European hosting providers).
-- [ ] **IT / Patch Mgmt:** **Priority 1** — Patch Cisco Catalyst SD-WAN Controller and Manager immediately (CVE-2026-20182, CVSS 10.0); verify no unauthorized SSH keys or NETCONF changes exist post-patch; follow ACSC hunt guide.
-- [ ] **IT / Patch Mgmt:** **Priority 2** — Apply Linux kernel updates for CVE-2026-46300 (Fragnesia) across all Linux servers, containers, and cloud instances; confirm patches address XFRM ESP-in-TCP specifically — existing Dirty Frag patches are NOT sufficient.
-- [ ] **IT / Patch Mgmt:** **Priority 3** — Apply Linux kernel patches for CVE-2026-31431 (Copy Fail); blacklist `algif_aead` module as temporary mitigation if patching is delayed.
-- [ ] **IT / Patch Mgmt:** **Priority 4** — Patch Ivanti EPMM to ≥12.6.1.1 (CVE-2026-6973); audit for unauthorized EPMM admin accounts created by attackers who may have harvested credentials via CVE-2026-1340.
-- [ ] **IT / Patch Mgmt:** Apply Microsoft May 2026 Patch Tuesday updates — prioritize CVE-2026-41096 (DNS Client RCE) and CVE-2026-41089 (Netlogon RCE) on domain controllers and DNS servers.
-- [ ] **ICS/OT Teams:** Immediately audit for internet-exposed Rockwell CompactLogix and Micro850 PLCs — use Censys/Shodan to confirm external footprint; remove cellular modem direct exposure or place behind an industrial DMZ; rotate all default Rockwell credentials.
-- [ ] **IT / Network:** Review and update SOHO router firmware across all branch sites (MikroTik, TP-Link); verify DHCP DNS server settings have not been tampered with; implement certificate pinning on corporate MDM-managed devices to defeat FrostArmada-style AitM.
-- [ ] **Leadership:** Risk callout — convergence of two Linux LPE vulnerabilities with public PoCs significantly elevates post-compromise risk across cloud-hosted and on-prem Linux environments. Any attacker with user-level shell access (via phishing, RCE, or misconfiguration) can trivially achieve root. Prioritize this for engineering and cloud ops teams as a weekend patching push.
-
----
+- [ ] **SOC — Hunt CVE-2026-0300:** Search edge logs (firewall/proxy/WAF) for inbound POSTs to `/php/login.php` and `/User-ID/` with abnormally long parameters; correlate against the four Unit 42 IPs and the malformed-Safari user-agent string.
+- [ ] **SOC — Detection:** Deploy the two YARA rules above to EDR / file-server scanning. Add `e11f69b4...a584` and the four CL-STA-1132 IPs to deny-list / block-list policies.
+- [ ] **SOC — AD telemetry:** Hunt for unusual `DomainDnsZones` enumeration and service-account logons originating from firewall management plane IP space in the last 30 days.
+- [ ] **IT / Patch Mgmt — PAN-OS:** Disable the User-ID Authentication Portal where not strictly required; restrict to trusted internal source IPs; enable Threat ID 510019 (Advanced Threat Prevention) on PAN-OS 11.1+. Schedule the 2026-05-13 hotfix for emergency deployment.
+- [ ] **IT / Patch Mgmt — Linux:** Push CVE-2026-31431 (Copy Fail) kernel updates across all server/workstation/container-host fleets this week; for systems that cannot patch immediately, blacklist the `algif_aead` module via `/etc/modprobe.d/`. FCEB deadline 2026-05-15.
+- [ ] **IT / Patch Mgmt — Other:** Apply Ivanti EPMM patch (CVE-2026-6973), ConnectWise ScreenConnect upgrade (CVE-2024-1708), and Cisco SD-WAN Manager PSIRT updates (CVE-2026-20122 / 20127 / 20128 / 20133). Patch Apache HTTP Server (CVE-2026-23918) on any HTTP/2-fronted service.
+- [ ] **Leadership / Client Comms:** Notify clients running internet-facing PAN-OS firewalls of the active exploitation, the patch ETA, and the interim mitigation. Recommend a same-day compromise assessment for any portal that has been exposed since 2026-04-09.
+- [ ] **Strategic:** Review detection strategy for AI-enabled malware (PROMPTFLUX / PROMPTSTEAL): supplement static IOC matching with behavioral IOAs (process spawning patterns, outbound LLM-API traffic, dynamically generated command strings).
 
 ## Sources & References
 
-1. [Cisco Talos — Ongoing exploitation of Cisco Catalyst SD-WAN vulnerabilities (CVE-2026-20182)](https://blog.talosintelligence.com/sd-wan-ongoing-exploitation/)
-2. [Cisco Talos — Active exploitation of Cisco Catalyst SD-WAN by UAT-8616 (CVE-2026-20127)](https://blog.talosintelligence.com/uat-8616-sd-wan/)
-3. [Rapid7 — CVE-2026-20182 Critical Authentication Bypass in Cisco Catalyst SD-WAN](https://www.rapid7.com/blog/post/ve-cve-2026-20182-critical-authentication-bypass-cisco-catalyst-sd-wan-controller-fixed/)
-4. [The Hacker News — CISA Adds Cisco SD-WAN CVE-2026-20182 to KEV](https://thehackernews.com/2026/05/cisa-adds-cisco-sd-wan-cve-2026-20182.html)
-5. [Microsoft Security Blog — CVE-2026-31431 Copy Fail Linux root privilege escalation](https://www.microsoft.com/en-us/security/blog/2026/05/01/cve-2026-31431-copy-fail-vulnerability-enables-linux-root-privilege-escalation/)
-6. [The Hacker News — CISA Adds Actively Exploited Linux Root Access Bug CVE-2026-31431 to KEV](https://thehackernews.com/2026/05/cisa-adds-actively-exploited-linux-root.html)
-7. [BleepingComputer — New Fragnesia Linux flaw (CVE-2026-46300) lets attackers gain root privileges](https://www.bleepingcomputer.com/news/security/new-fragnesia-linux-flaw-lets-attackers-gain-root-privileges/)
-8. [Tenable — CVE-2026-46300 Fragnesia FAQ](https://www.tenable.com/blog/fragnesia-cve-2026-46300-faq-about-new-linux-kernel-xfrm-esp-in-tcp-priv-esc)
-9. [The Hacker News — Ivanti EPMM CVE-2026-6973 RCE Under Active Exploitation](https://thehackernews.com/2026/05/ivanti-epmm-cve-2026-6973-rce-under.html)
-10. [SecurityWeek — Ivanti Patches EPMM Zero-Day Exploited in Targeted Attacks](https://www.securityweek.com/ivanti-patches-epmm-zero-day-exploited-in-targeted-attacks/)
-11. [Lumen Black Lotus Labs — FrostArmada: Forest Blizzard DNS Hijacking Campaign](https://www.lumen.com/blog/en-us/frostarmada-forest-blizzard-dns-hijacking)
-12. [The Hacker News — Russian State-Linked APT28 Exploits SOHO Routers in Global DNS Hijacking Campaign](https://thehackernews.com/2026/04/russian-state-linked-apt28-exploits.html)
-13. [CISA Advisory AA26-097A — Iranian-Affiliated Cyber Actors Exploit PLCs Across US Critical Infrastructure](https://www.cisa.gov/news-events/cybersecurity-advisories/aa26-097a)
-14. [Claroty Team82 — Inside a New OT/IoT Cyberweapon: IOCONTROL](https://claroty.com/team82/research/inside-a-new-ot-iot-cyber-weapon-iocontrol)
-15. [Censys — Iranian-Affiliated APT Targeting Rockwell/Allen-Bradley PLCs](https://censys.com/blog/iranian-affiliated-apt-targeting-rockwell-allen-bradley-plcs/)
-16. [Cisco Talos — UAT-9244 targets South American telecom providers with TernDoor, PeerTime, BruteEntry](https://blog.talosintelligence.com/uat-9244/)
-17. [The Hacker News — China-Linked Hackers Use TernDoor, PeerTime, BruteEntry in South American Telecom Attacks](https://thehackernews.com/2026/03/china-linked-hackers-use-terndoor.html)
-18. [BleepingComputer — Microsoft May 2026 Patch Tuesday fixes 120 flaws, no zero-days](https://www.bleepingcomputer.com/news/microsoft/microsoft-may-2026-patch-tuesday-fixes-120-flaws-no-zero-days/)
-19. [Cybersecurity News — Fortinet Enterprise Products Vulnerabilities (FortiSandbox CVE-2026-26083)](https://cybersecuritynews.com/fortinet-enterprise-products-vulnerabilities/)
-20. [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
+1. [Unit 42 — Threat Brief: Exploitation of PAN-OS Captive Portal Zero-Day (CVE-2026-0300)](https://unit42.paloaltonetworks.com/captive-portal-zero-day/)
+2. [Palo Alto Networks Security Advisory CVE-2026-0300](https://security.paloaltonetworks.com/CVE-2026-0300)
+3. [CISA KEV — Catalog landing page](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
+4. [CISA Alert (2026-05-07) — Adds CVE-2026-6973 to KEV](https://www.cisa.gov/news-events/alerts/2026/05/07/cisa-adds-one-known-exploited-vulnerability-catalog)
+5. [CISA Alert (2026-05-01) — Adds CVE to KEV](https://www.cisa.gov/news-events/alerts/2026/05/01/cisa-adds-one-known-exploited-vulnerability-catalog)
+6. [CISA Alert (2026-04-20) — Eight KEV additions](https://www.cisa.gov/news-events/alerts/2026/04/20/cisa-adds-eight-known-exploited-vulnerabilities-catalog)
+7. [The Hacker News — CISA Adds Linux Root Bug CVE-2026-31431 to KEV](https://thehackernews.com/2026/05/cisa-adds-actively-exploited-linux-root.html)
+8. [The Hacker News — CISA Adds ConnectWise + Windows Flaws to KEV](https://thehackernews.com/2026/04/cisa-adds-actively-exploited.html)
+9. [The Hacker News — Critical Apache HTTP/2 Flaw (CVE-2026-23918)](https://thehackernews.com/2026/05/critical-apache-http2-flaw-cve-2026.html)
+10. [The Hacker News — Palo Alto PAN-OS Flaw Under Active Exploitation](https://thehackernews.com/2026/05/palo-alto-pan-os-flaw-under-active.html)
+11. [Unit 42 — "Copy Fail" CVE-2026-31431](https://unit42.paloaltonetworks.com/cve-2026-31431-copy-fail/)
+12. [Microsoft Security Blog — Copy Fail (CVE-2026-31431)](https://www.microsoft.com/en-us/security/blog/2026/05/01/cve-2026-31431-copy-fail-vulnerability-enables-linux-root-privilege-escalation/)
+13. [Red Hat — RHSB-2026-02 Cryptographic Subsystem Privilege Escalation](https://access.redhat.com/security/vulnerabilities/RHSB-2026-02)
+14. [Help Net Security — Nine-year-old Linux kernel flaw enables LPE](https://www.helpnetsecurity.com/2026/04/30/copyfail-linux-lpe-vulnerability-cve-2026-31431/)
+15. [Wiz Blog — Critical Buffer Overflow in PAN-OS Exploited In-the-Wild](https://www.wiz.io/blog/critical-vulnerability-in-pan-os-exploited-in-the-wild-cve-2026-0300)
+16. [Cybersecurity Dive — Palo Alto warns state-linked cluster behind zero-day exploitation](https://www.cybersecuritydive.com/news/palo-alto-networks-state-linked-zero-day/819588/)
+17. [Greenbone — Emergency Patch CVE-2026-20127 Cisco Catalyst SD-WAN](https://www.greenbone.net/en/blog/emergency-patch-cve-2026-20127-in-cisco-catalyst-sd-wan-actively-exploited-against-critical-infrastructure/)
+18. [MixMode — Volt Typhoon, Salt Typhoon & APT41: This Is No Longer a Drill](https://www.mixmode.ai/blog/volt-typhoon-salt-typhoon-apt41-this-is-no-longer-a-drill)
+19. [Aviatrix Threat Research — Salt Typhoon 2026 Telecom Breach](https://aviatrix.ai/threat-research-center/salt-typhoon-2026-telecom-breach/)
+20. [Wikipedia — Salt Typhoon](https://en.wikipedia.org/wiki/Salt_Typhoon)
+21. [Congress.gov CRS IF12798 — Salt Typhoon Hacks of Telecommunications Companies](https://www.congress.gov/crs-product/IF12798)
+22. [Obsidian Security — APT41 / Barium telecom kernel-level backdoor](https://www.obsidiansecurity.com/incident-watch/apt41-barium-targets-telecom-providers-via-kernel-level-backdoor-espionage-campaign)
+23. [NJCCIC — China-Linked Cyber Operations Targeting US Critical Infrastructure](https://www.cyber.nj.gov/threat-landscape/nation-state-threat-analysis-reports/china-linked-cyber-operations-targeting-us-critical-infrastructure)
+24. [Google Cloud — AI Risk and Resilience: Mandiant special report](https://cloud.google.com/security/resources/ai-risk-and-resilience)
+25. [The Hacker News — PROMPTFLUX uses Gemini AI to rewrite its code hourly](https://thehackernews.com/2025/11/google-uncovers-promptflux-malware-that.html)
+26. [The Record — New malware uses AI to adapt during attacks](https://therecord.media/new-malware-uses-ai-to-adapt)
+27. [Mandiant M-Trends 2026 — Google blog summary](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/m-trends-2026-report-cybersecurity/)
+28. [CrowdStrike 2026 Global Threat Report findings](https://www.crowdstrike.com/en-us/blog/crowdstrike-2026-global-threat-report-findings/)
+29. [ThreatFox — Live IOC database](https://threatfox.abuse.ch/)
+30. [OffSeq Threat Radar — ThreatFox IOCs for 2026-05-09](https://radar.offseq.com/threat/threatfox-iocs-for-2026-05-09-6a18791b)
 
 ---
 
-<sub>© Acentry Security · Daily Threat Intelligence Feed · 2026-05-17 · Generated automatically — verify before operational use.</sub>
+<sub>© Acentry Security · Daily Threat Intelligence Feed · 2026-05-10 · Generated automatically — verify before operational use.</sub>
