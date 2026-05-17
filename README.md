@@ -1,16 +1,16 @@
-<h1 align="center">ACENTRY SECURITY</h1>
-<h3 align="center">Daily Threat Intelligence Feed</h3>
+# Acentry Security — Daily Threat Intelligence Feed
 
----
+This repository contains Acentry Security's automated daily threat intelligence briefs, covering critical CVEs, APT activity, indicators of compromise (IOCs), YARA detection rules, and recommended defensive actions for SOC and IT teams.
 
-This repository contains Acentry Security's automated Daily Threat Intelligence Feed — a continuously updated, analyst-grade briefing covering critical CVEs, APT/threat actor activity, indicators of compromise, YARA detection rules, and prioritized recommended actions. Each brief is written for SOC, incident response, and IT operations audiences. Content is sourced from CISA KEV, vendor PSIRTs, and leading threat intelligence providers, verified against authoritative references, and classified TLP:CLEAR for Acentry client distribution.
+Briefs are generated and published automatically each day. Each edition is classified **TLP:CLEAR** and intended for Acentry clients and the broader security community. All content is sourced from authoritative, publicly available intelligence. Verify all indicators before operational use.
 
 ## Latest Brief
 
-[latest.md](latest.md) — **2026-05-16**
+[View latest brief → latest.md](latest.md)
 
 ## Recent Archives
 
+- [2026-05-17](archive/2026-05-17.md)
 - [2026-05-16](archive/2026-05-16.md)
 - [2026-05-14](archive/2026-05-14.md)
 - [2026-05-13](archive/2026-05-13.md)
