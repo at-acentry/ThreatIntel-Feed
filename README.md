@@ -8,12 +8,13 @@ Each morning a fresh brief is published to **[`latest.md`](latest.md)**; a dated
 
 ## Latest Brief
 
-**[2026-05-19 — Daily Threat Intelligence Feed](latest.md)**
+**[2026-05-20 — Daily Threat Intelligence Feed](latest.md)**
 
 ---
 
 ## Recent Archives
 
+- [2026-05-20](archive/2026-05-20.md)
 - [2026-05-19](archive/2026-05-19.md)
 - [2026-05-18](archive/2026-05-18.md)
 - [2026-05-17](archive/2026-05-17.md)
