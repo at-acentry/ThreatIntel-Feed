@@ -5,73 +5,61 @@
 
 ---
 
-**Date:** 2026-05-19  
+**Date:** 2026-05-18  
 **Classification:** TLP:CLEAR — For Acentry Clients  
 **Analyst:** Acentry Threat Intelligence Team
 
-> **Daily Brief.** Today's threat landscape is dominated by two converging priorities: an active DPRK-attributed macOS credential-theft campaign dubbed "Mach-O Man" that is targeting fintech and crypto executives via ClickFix social engineering, and a dense patch cycle following Microsoft's May 2026 Patch Tuesday (120 CVEs including three with CVSS ≥ 9.8). Three vulnerabilities currently on CISA's KEV catalog — Cisco Catalyst SD-WAN (CVSS 10.0), Fortinet FortiClient EMS, and the Linux "Copy Fail" kernel LPE — remain under active exploitation and warrant immediate attention. China-nexus actors Salt Typhoon and Volt Typhoon continue to sustain persistent access across telecom and critical infrastructure globally, while DragonForce ransomware added a U.S. healthcare provider and two European firms to its victim roster this week.
+> **Daily Brief.** Today's threat landscape is dominated by three converging crises: a maximum-severity CVSS 10.0 authentication bypass in Cisco Catalyst SD-WAN infrastructure (CVE-2026-20182) is being actively exploited by the sophisticated state-linked actor UAT-8616, representing the sixth Cisco SD-WAN zero-day weaponized by this group in 2026 alone. In parallel, the "Copy Fail" Linux kernel privilege escalation (CVE-2026-31431) — a reliably exploitable, 732-byte Python script that grants root on virtually all Linux distributions since 2017 — continues to spawn new compiled variants and dropper tooling now tracked in the wild. Iranian state-sponsored group MuddyWater (Mango Sandstorm) has added a false-flag ransomware dimension to its credential-harvesting operations, using Microsoft Teams social engineering to steal credentials and stage long-term espionage under cover of apparent ransomware intrusion. Organizations running Cisco SD-WAN, Linux servers, PAN-OS firewalls, or Ivanti EPMM should treat today's advisories as emergency-priority actions.
 
 ## Executive Summary
 
-- **KEV Alert:** CISA KEV now lists Cisco SD-WAN CVE-2026-20182 (CVSS 10.0) — authentication bypass enabling full admin takeover; FCEB remediation deadline was May 17, 2026.
-- **Linux "Copy Fail" (CVE-2026-31431):** Nine-year-old kernel LPE with public PoC affects virtually all Linux distributions shipped since 2017, including cloud and Kubernetes workloads. Patch to kernel ≥ 6.18.22 or disable `algif_aead`.
-- **Lazarus "Mach-O Man":** Active DPRK macOS credential-theft kit distributed via fake Zoom/Teams/Meet meeting invites; steals browser secrets and macOS Keychain data and exfiltrates via Telegram. Verified IOCs and YARA rule below.
-- **Microsoft May Patch Tuesday:** 120 CVEs patched including Windows DNS Client RCE (9.8), Netlogon RCE (9.8), and Dynamics 365 RCE (9.9) — no zero-days exploited in the wild at time of release.
-- **DragonForce escalates healthcare targeting:** Claimed AdvancedHEALTH on May 16 with threat to release patient records; also hit Plan (telecom, Isle of Man) and Ingelan (engineering, Spain) on May 17.
-- **Lazarus crypto theft continues:** ~$290M stolen from KelpDAO on April 18 attributed to Lazarus with high confidence; group has stolen >$500M in the past month alone.
+- **CVE-2026-20182 (CVSS 10.0 / KEV):** Critical Cisco Catalyst SD-WAN Controller authentication bypass actively exploited by UAT-8616; attacker can inject SSH keys as `vmanage-admin` and issue arbitrary NETCONF commands — patch immediately or block untrusted access to UDP/12346.
+- **CVE-2026-31431 "Copy Fail" (CVSS 7.8 / KEV):** Linux kernel local privilege escalation affecting all major distributions since 2017; a working 732-byte PoC is publicly available and compiled variants are circulating — apply vendor patches; no workaround is sufficient alone.
+- **CVE-2026-0300 (CVSS 9.3 / KEV):** Unauthenticated root-level RCE in Palo Alto PAN-OS Captive Portal has been confirmed in limited exploitation since April; state-sponsored attribution likely based on post-exploitation tooling (Earthworm, ReverseSocks5).
+- **CVE-2026-6973 (CVSS 7.2 / KEV):** Ivanti EPMM RCE zero-day being chained with credential reuse from earlier CVE-2026-1281/1340 compromises; targets MDM infrastructure that manages corporate mobile fleets.
+- **MuddyWater / Mango Sandstorm:** Iranian APT using Microsoft Teams IT-support impersonation to harvest MFA credentials and deploy a custom backdoor (`Game.exe`), masking espionage as a Chaos ransomware intrusion; confirmed IOCs include C2 domains `moonzonet[.]com` and `uploadfiler[.]com`.
+- **"The Gentlemen" Ransomware:** Rapidly emerging RaaS group now ranked third globally after zero victims in August 2025; achieved 166 victims in Q1 2026 through pre-stockpiled access and non-US targeting strategy.
 
 ## Critical CVEs (Last 24–72h)
 
 | CVE ID | CVSS | Vendor / Product | Description | Exploited | Patch / Mitigation | Source |
 |--------|------|------------------|-------------|-----------|--------------------|--------|
-| CVE-2026-20182 | 10.0 | Cisco / Catalyst SD-WAN Controller & Manager | Authentication bypass via unauthenticated DTLS on UDP/12346 allows attacker to obtain admin privileges remotely. CISA KEV deadline was 2026-05-17. | Yes — KEV | Apply Cisco security advisory; update to fixed version | [THN](https://thehackernews.com/2026/05/cisco-catalyst-sd-wan-controller-auth.html) |
-| CVE-2026-42898 | 9.9 | Microsoft / Dynamics 365 (on-premises) | RCE via improper code-generation control; authorized network attacker can execute arbitrary code. May Patch Tuesday. | No | Apply May 2026 Patch Tuesday cumulative update | [Tenable](https://www.tenable.com/blog/microsofts-may-2026-patch-tuesday-addresses-118-cves-cve-2026-41103) |
-| CVE-2026-41096 | 9.8 | Microsoft / Windows DNS Client | Heap-based buffer overflow in DNS client; no auth or user interaction required. Remote attacker sends crafted DNS response to trigger RCE. | No | Apply May 2026 Patch Tuesday | [WindowsNews](https://windowsnews.ai/article/microsoft-patches-critical-dns-client-rce-cve-2026-41096-in-may-2026-patch-tuesday.418370) |
-| CVE-2026-41089 | 9.8 | Microsoft / Windows Netlogon | Stack-based buffer overflow in Netlogon; unauthenticated attacker sends crafted network packet to domain controller to achieve RCE. | No | Apply May 2026 Patch Tuesday | [Vulert](https://vulert.com/blog/microsoft-patch-tuesday-may-2026-dns-netlogon-rce/) |
-| CVE-2026-35616 | 9.1 | Fortinet / FortiClient EMS 7.4.5–7.4.6 | Improper access control; pre-auth API bypass enables privilege escalation and arbitrary command execution. KEV-listed (added 2026-04-06). | Yes — KEV | Apply emergency hotfix; full patch in v7.4.7 | [CyberScoop](https://cyberscoop.com/fortinet-forticlient-ems-zero-day-cve-2026-35616-hotfix-known-exploited/) |
-| CVE-2026-31431 | 7.8 | Linux Kernel (all distros since 2017) | "Copy Fail" — LPE flaw in kernel crypto subsystem (`algif_aead`); public PoC available. Affects cloud Linux, Kubernetes clusters at scale. | Yes — KEV | Upgrade to kernel ≥ 6.18.22 / 6.19.12 / 7.0; or `modprobe -r algif_aead` as interim fix | [HelpNetSecurity](https://www.helpnetsecurity.com/2026/04/30/copyfail-linux-lpe-vulnerability-cve-2026-31431/) |
-| CVE-2026-6973 | N/A | Ivanti / Endpoint Manager Mobile (EPMM) | Improper input validation; attackers leverage harvested admin credentials to exploit "a very limited number" of customers. KEV-listed. | Yes — KEV | Apply Ivanti EPMM patch per vendor advisory | [SecurityOnline](https://securityonline.info/ivanti-epmm-exploited-in-the-wild-cve-2026-6973-zero-day/) |
-| CVE-2026-0300 | Critical | Palo Alto Networks / PAN-OS (Captive Portal) | Buffer overflow in User-ID Authentication/Captive Portal service; unauthenticated attacker sends crafted packets for RCE with root on PA-Series and VM-Series. Unit 42 tracking exploitation cluster CL-STA-1132 (likely state-sponsored). | Yes | Apply PAN-OS hotfix per Palo Alto PSIRT advisory | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| CVE-2026-20182 | 10.0 | Cisco / Catalyst SD-WAN Controller & Manager | Authentication bypass via vdaemon DTLS service (UDP/12346); allows unauthenticated attacker to inject SSH keys and gain admin access | Yes — KEV; UAT-8616 | Upgrade per `cisco-sa-sdwan-rpa2-v69WY2SW`; restrict UDP/12346 to trusted peers | [Cisco PSIRT](https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-sdwan-rpa2-v69WY2SW) |
+| CVE-2026-31431 | 7.8 | Linux Kernel / All major distros (kernels 4.14–7.0-rc) | "Copy Fail" — logic bug in `authencesn` cryptographic template; unprivileged local user triggers controlled 4-byte page-cache write to elevate to root | Yes — KEV; public PoC in wild | Apply vendor kernel patches (Ubuntu, RHEL, Amazon Linux, SUSE available); restrict `AF_ALG` access where possible | [Microsoft Security Blog](https://www.microsoft.com/en-us/security/blog/2026/05/01/cve-2026-31431-copy-fail-vulnerability-enables-linux-root-privilege-escalation/) |
+| CVE-2026-0300 | 9.3 | Palo Alto Networks / PAN-OS PA-Series & VM-Series | Buffer overflow in Captive Portal; unauthenticated RCE as root via crafted packets to ports 6081/6082 | Yes — KEV; limited in-wild; state-actor attribution | Upgrade to PAN-OS 12.1.4-h5 / 11.2.7-h13 / 11.2.10-h6 or later; restrict portal to trusted internal zones | [Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/) |
+| CVE-2026-6973 | 7.2 | Ivanti / EPMM | Improper input validation; authenticated admin RCE, chained with CVE-2026-1281/1340 credential reuse | Yes — KEV; limited targeted | Upgrade EPMM to 12.6.1.1 / 12.7.0.1 / 12.8.0.1; rotate all EPMM admin credentials | [Help Net Security](https://www.helpnetsecurity.com/2026/05/08/ivanti-epmm-zero-day-cve-2026-6973/) |
+| CVE-2026-1281 | 9.8 | Ivanti / EPMM | Unauthenticated RCE; precursor in chained exploitation with CVE-2026-6973 via harvested credentials | Yes — KEV; exploited Q1 2026 | Patch EPMM; rotate all EPMM admin credentials regardless of prior patch state | [Unit 42](https://unit42.paloaltonetworks.com/ivanti-cve-2026-1281-cve-2026-1340/) |
+| CVE-2026-20127 | 9.8 | Cisco / Catalyst SD-WAN Controller | Earlier auth bypass in same product family, exploited by UAT-8616 since 2023; related to CVE-2026-20182 campaign | Yes — KEV; exploitation ongoing | Patch per Cisco advisory; verify no unauthorized SSH keys were injected post-compromise | [Cisco Talos](https://blog.talosintelligence.com/uat-8616-sd-wan/) |
 
 ## APT / Threat Actor Activity
 
-### Lazarus Group (aliases: APT38, Hidden Cobra, Guardians of Peace, ZINC)
+### UAT-8616 (Cisco Talos designation; nation-state suspected)
 
-- **Targets:** Fintech, cryptocurrency exchanges, DeFi platforms, macOS enterprise environments (developers, executives)
-- **TTPs:** ClickFix social engineering via Telegram (`T1566.002`), User Execution (`T1204`), LaunchAgent persistence (`T1543.001`), Keychain credential theft (`T1555`), exfiltration via Telegram Bot API (`T1567.002`), Go-based Mach-O binaries with ad-hoc code signing, self-deletion post-exfiltration (`T1070.004`)
-- **Recent activity:** "Mach-O Man" macOS kit (discovered April 21, 2026 by Bitso Quetzal Team / Mauro Eldritch via ANY.RUN) is actively distributing a multi-stage Go-based stealer. Victims receive fake meeting invites via Telegram, execute a terminal command to "fix" a connection error, which drops `teamsSDK.bin` (stager) → profiler (`D1*.bin`) → persistence (`com.onedrive.launcher`) → `macrasv2` stealer. Browser secrets, cookies, and macOS Keychain data are archived to `user_ext.zip` and exfiltrated via an exposed Telegram bot. On April 18, KelpDAO was exploited for ~$290M; combined with the Drift exploit, Lazarus has stolen >$500M in the past month.
-- **Attribution confidence:** High — Go build artifacts, RC4 key reuse, Telegram exfil channel, and infrastructure overlap with prior Lazarus ClickFax/BeaverTail campaigns corroborated by FBI, CISA, and multiple vendors
-- **Sources:** [ANY.RUN / Mauro Eldritch](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/), [Dark Reading](https://www.darkreading.com/threat-intelligence/north-koreas-lazarus-targets-macos-users-clickfix), [CoinDesk](https://www.coindesk.com/tech/2026/04/22/lazarus-group-has-become-especially-dangerous-with-new-mach-o-man-attack-certik)
-
----
-
-### Salt Typhoon (aliases: Earth Estries, FamousSparrow, GhostEmperor)
-
-- **Targets:** Telecommunications providers, government agencies, defense contractors, technology companies — confirmed victims in 80+ countries
-- **TTPs:** Exploitation of known CVEs in Sophos Firewalls, Cisco IOS XE WebUI, Ivanti Connect Secure, and Fortinet FortiClient EMS for initial access; living-off-the-land via PowerShell, WMIC, and Windows service creation (`T1059.001`, `T1543.003`); registry manipulation; persistent implants inside telecom routing infrastructure; blends into legitimate network traffic to evade EDR
-- **Recent activity:** FBI confirmed in February 2026 that threats remain active and ongoing. Group has compromised >200 organizations globally, with a focus on intelligence collection from carrier-grade telecom gear. Salt Typhoon mandate is espionage/SIGINT collection rather than pre-positioning for disruption (contrast: Volt Typhoon). Basic configuration errors and known CVEs continue to provide initial entry points.
-- **Attribution confidence:** High — attributed by FBI, CISA, NSA, and Five Eyes partners; corroborated by Mandiant and Microsoft Threat Intelligence
-- **Sources:** [CISA Advisory AA24-038A](https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-038a), [Censys](https://www.censys.com/blog/the-persistent-threat-of-salt-typhoon-tracking-exposures-of-potentially-targeted-devices), [Vectra](https://www.vectra.ai/resources/vectra-ai-threat-briefing-salt-typhoon)
+- **Targets:** Critical national infrastructure (CNI) operators — energy utilities, telecoms, transportation; global scope with emphasis on high-value Western and Asia-Pacific organizations
+- **TTPs:** Initial access via Cisco SD-WAN auth bypass (`T1190`); privilege escalation via version-downgrade to exploit CVE-2022-20775 (`T1068`); SSH key injection into `vmanage-admin` (`T1098.004`); NETCONF command execution (`T1059`); Operational Relay Box (ORB) network abuse for C2 obfuscation (`T1090.003`); extensive log clearing (`T1070.001`); lateral movement via compromised SD-WAN management plane
+- **Recent activity:** Active exploitation of CVE-2026-20182 (May 2026), continuing a campaign stretching back to at least 2023 that has now weaponized six distinct Cisco SD-WAN zero-days. Following public PoC release, ten additional threat clusters began opportunistic exploitation — UAT-8616 remains the primary sophisticated actor but the attack surface has broadened significantly.
+- **Attribution confidence:** Medium — Cisco Talos tracks with high confidence as a distinct cluster; infrastructure overlaps with monitored ORB networks suggest nation-state sponsorship; no public country attribution
+- **Sources:** [Cisco Talos Blog](https://blog.talosintelligence.com/uat-8616-sd-wan/), [Help Net Security](https://www.helpnetsecurity.com/2026/05/15/cisco-sd-wan-zero-day-cve-2026-20182/), [SecurityWeek](https://www.securityweek.com/cisco-patches-another-sd-wan-zero-day-the-sixth-exploited-in-2026/)
 
 ---
 
-### Volt Typhoon (aliases: BRONZE SILHOUETTE, Vanguard Panda, Dev-0391)
+### MuddyWater (aliases: Mango Sandstorm, MERCURY, Seedworm, Static Kitten, Earth Vetala, TA450)
 
-- **Targets:** U.S. critical infrastructure — energy, water, transportation, communications; focused on pre-positioning for potential disruption rather than immediate data exfiltration
-- **TTPs:** Valid accounts for initial access (`T1078`), LOLBins to avoid malware footprint (`T1218`), FRP client obfuscation (BrightmetricAgent.exe / SMSvcService.exe UPX-packed inside ScanLine), credential dumping (`T1003`), lateral movement, encrypted C2 channels (`T1573`). Avoids EDR detection by operating exclusively with built-in OS tools.
-- **Recent activity:** 2026 analysis confirms continued active presence in U.S. critical infrastructure. Group is assessed to be building capability to disrupt or destroy critical infrastructure services in the event of a major conflict with the United States. CISA STIX IOC bundle available: `MAR-10448362.c1.v2.CLEAR_stix2.json`.
-- **Attribution confidence:** High — attributed by Microsoft, CISA, FBI, NSA, and Five Eyes allies
-- **Sources:** [Cybelangel](https://cybelangel.com/blog/volt-typhoon/), [Picus Security](https://www.picussecurity.com/resource/blog/volt-typhoon-living-off-the-land-cyber-espionage), [Corelight](https://corelight.com/blog/volt-typhoon-salt-typhoon-edr)
+- **Targets:** Western and MENA-region organizations; construction, manufacturing, business services, and government sectors; confirmed US-based victims in most recent campaign
+- **TTPs:** Initial access via unsolicited Microsoft Teams external chat requests impersonating IT support (`T1566.004`); screen-sharing to harvest credentials and manipulate MFA (`T1111`, `T1056.001`); deployment of remote access tools DWAgent and AnyDesk for persistence (`T1219`); custom downloader `ms_upd.exe` signed with "Donald Gay" code-signing certificate (previously used in Fakeset/CastleLoader) fetches `Game.exe` backdoor (`T1105`, `T1027`); `Game.exe` provides remote command execution, interactive shell, file manipulation, sandbox evasion (`T1059.003`); C2 over HTTPS (`T1071.001`); false-flag Chaos ransomware deployment to mask state-espionage as financial crime (`T1036`)
+- **Recent activity:** Rapid7 disclosed a MuddyWater intrusion (March 2026) where Teams social engineering led to full credential harvest, lateral movement, and data exfiltration — the Chaos ransomware appearance was confirmed as a deliberate false flag. C2 infrastructure includes `moonzonet[.]com` and `uploadfiler[.]com` at `172.86.126[.]208:443`. Chaos ransomware claimed 36 victims on its leak site as of late March 2026, predominantly US-based.
+- **Attribution confidence:** High — code-signing certificate reuse ("Donald Gay") cross-links to prior MuddyWater campaigns; Rapid7 and Microsoft Threat Intelligence corroborate attribution; MITRE ATT&CK Group G0069
+- **Sources:** [The Hacker News](https://thehackernews.com/2026/05/muddywater-uses-microsoft-teams-to.html), [MITRE ATT&CK G0069](https://attack.mitre.org/groups/G0069/), [Xcitium Threat Labs](https://threatlabsnews.xcitium.com/blog/muddywater-leverages-microsoft-teams-for-credential-theft-in-false-flag-ransomware-attack/)
 
 ---
 
-### DragonForce (aliases: FireFlame, FuryStorm — ransomware cartel)
+### "The Gentlemen" (Ransomware-as-a-Service)
 
-- **Targets:** Healthcare, telecommunications, engineering, retail — global scope; operates as RaaS cartel absorbing LockBit/BlackCat/RansomHub affiliates
-- **TTPs:** Phishing for initial access, red-team frameworks (Cobalt Strike), double extortion (encrypt + exfiltrate), Conti-linked encryptor variant (`T1486`), data leak site; 80% revenue share to affiliates
-- **Recent activity (72h):** May 16 — claimed AdvancedHEALTH (U.S. healthcare), threatening release of patient records and internal documents. May 17 — claimed Plan (telecom, Isle of Man) and Ingelan (engineering, Spain). DragonForce previously executed high-profile attacks on UK retailers Marks & Spencer, Co-op, and Harrods in 2025 before evolving into a full RaaS cartel model.
-- **Attribution confidence:** High — self-claimed on verified leak site; tracked by Intel 471, Darktrace, Group-IB
-- **Sources:** [DeXpose / AdvancedHEALTH](https://www.dexpose.io/dragonforce-strikes-advancedhealth-in-ransomware-attack/), [Acronis](https://www.acronis.com/en/tru/posts/the-dragonforce-cartel-scattered-spider-at-the-gate/), [Darktrace](https://www.darktrace.com/blog/tracking-a-dragon-investigating-a-dragonforce-affiliated-ransomware-attack-with-darktrace)
+- **Targets:** Non-US organizations (deliberate avoidance of US-centric targeting); broad geographic diversification; third place globally in victim counts as of Q1 2026
+- **TTPs:** Pre-stockpiled network access leveraged for rapid deployment (`T1078`); encryptionless extortion trend with data-theft-only variants; RaaS affiliate model; aggressive expansion from zero victims in August 2025 to 166 in Q1 2026
+- **Recent activity:** The Gentlemen achieved third place globally in ransomware victim counts (Q1 2026, Check Point Research), representing the most significant new entrant to the threat landscape this year. Exemplifies the industry-wide shift toward data-leak-only extortion — the 28% ransom payment rate industrywide in 2025 is driving actors toward encryptionless models.
+- **Attribution confidence:** Low — limited public technical analysis; tracked by Check Point Research
+- **Sources:** [Check Point Q1 2026 Ransomware Report](https://research.checkpoint.com/2026/the-state-of-ransomware-q1-2026/), [CYFIRMA Weekly Intelligence 08 May 2026](https://www.cyfirma.com/news/weekly-intelligence-report-08-may-2026/)
 
 ## Indicators of Compromise (IOCs)
 
@@ -81,161 +69,175 @@
 
 | Hash | Family / Threat | First Seen | Source |
 |------|-----------------|------------|--------|
-| `871d8f92b008a75607c9f1feb4922b9a02ac7bd2ed61b71ca752a5bed5448bf3` | Lazarus / Mach-O Man — `teamsSDK.bin` stager (macOS, Go) | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| `85bed283ba95d40d99e79437e6a3161336c94ec0acbc0cd38599d0fc9b2e393c` | Lazarus / Mach-O Man — `macrasv2` stealer (macOS, Go) | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| `4b08a9e221a20b8024cf778d113732b3e12d363250231e78bae13b1f1dc1495b` | Lazarus / Mach-O Man — `minst2.bin` persistence module (macOS, Go) | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| `0f41fd82cac71e27c36eb90c0bf305d6006b4f3d59e8ba55faeacbe62aadef90` | Lazarus / Mach-O Man — `D1yCPUyk.bin` / `D1YrHRTg.bin` profiler (macOS, Go) | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| `a9562ab6bce06e92d4e428088eacc1e990e67ceae6f6940047360261b5599614` | Lazarus / Mach-O Man — `localencode` / `OneDrive` downloader | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| `eb3eae776d175f7fb2fb9986c89154102ba8eabfde10a155af4dfb18f28be1b5` | Lazarus / Mach-O Man — `com.onedrive.launcher.plist` LaunchAgent | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| `34ff2f72c191434ce5f20ebc1a7e823794ac69bba9df70721829d66e7196b044` | Lazarus / BeaverTail — ClickFix dropper (Windows) | 2026-03 | [Sekoia](https://blog.sekoia.io/clickfake-interview-campaign-by-lazarus/) |
+| a567d09b15f6e4440e70c9f2aa8edec8ed59f53301952df05c719aa3911687f9 | CVE-2026-31431 "Copy Fail" — Theori original PoC (732B Python) | 2026-04-29 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| 3c5ec61632d0699e048d8428461c4d65f89988a370396db2f070f63ebbf9dbae | CVE-2026-31431 "Copy Fail" — PoC variant (740B Python, CRLF line endings) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| d401e7d1c00605749d6c617ace73ab20a762b72e41c2e1590331596e38219a61 | CVE-2026-31431 "Copy Fail" — PoC variant (731B Python) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| e097ce64b1bf0933e69c9d342038fb52f4b278da62b265daa3adf22c00658a9c | CVE-2026-31431 "Copy Fail" — PoC variant (806B Python) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| 7ef953069578beef7daf2d984d16351b0c60c6adcbf8062ffbfaac6ce944c1da | CVE-2026-31431 "Copy Fail" — compiled ELF shellcode (160B, raw x86-64 payload) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| 01881b737c106a6d84e8e12cb417671b5f612f13adcb6cb1edd8a46704ddd252 | CVE-2026-31431 "Copy Fail" — compiled ELF shellcode (161B, raw x86-64 payload) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| b35ddf2ecd035faf9b38af62779502b7fa19037115054a00ed8d5327a3f2ec03 | CVE-2026-31431 "Copy Fail" — goodcopy.c source (blasty C reimplementation) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| ed0018054d8e7058b299b7591bc32364dbc439c25be4067450189b1a73033c67 | CVE-2026-31431 "Copy Fail" — goodcopy ELF64 static binary (930KB) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
+| 84f44c4a699e025ceff588028c9e041b213d6198fc7fa40b7d24ca6ebbf9b305 | CVE-2026-31431 "Copy Fail" — goodcopy ELF64 dynamic PIE binary (17KB) | 2026-04-30 | [ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules) |
 
 ### Network — IPs
 
 | IP | Threat | First Seen | Source |
 |----|--------|------------|--------|
-| 172.86.113.102 | Lazarus C2 — Mach-O Man kit (`/Onedrive`, `/localencode`, `/payload` endpoints) | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| 144.172.114.220 | Lazarus C2 — Mach-O Man kit | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| 45.159.248.110 | Lazarus / BeaverTail stealer C2 (ClickFix Windows campaign) | 2026-03 | [Microsoft Security Blog](https://www.microsoft.com/en-us/security/blog/2026/05/06/clickfix-campaign-uses-fake-macos-utilities-lures-deliver-infostealers/) |
-| 193.36.38.237 | Lazarus / ClickFix — C2 data exfiltration endpoint | 2026-03 | [Sekoia ClickFake](https://blog.sekoia.io/clickfake-interview-campaign-by-lazarus/) |
-| 188.34.195.44 | Lazarus — malicious infrastructure (ClickFix campaign) | 2026-03 | [Sekoia ClickFake](https://blog.sekoia.io/clickfake-interview-campaign-by-lazarus/) |
+| 172.86.126.208 | MuddyWater (Mango Sandstorm) — C2 server (HTTPS/443); `ms_upd.exe` and `Game.exe` backdoor callback infrastructure | 2026-03 | [The Hacker News](https://thehackernews.com/2026/05/muddywater-uses-microsoft-teams-to.html) |
 
 ### Network — Domains / URLs
 
 | Indicator | Threat | First Seen | Source |
 |-----------|--------|------------|--------|
-| update-teams.live | Lazarus / Mach-O Man — typosquat used for payload delivery | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| livemicrosft.com | Lazarus / Mach-O Man — typosquat (missing 'o' in microsoft) | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| http://172.86.113.102/Onedrive | Lazarus — payload delivery URL | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| http://172.86.113.102/localencode | Lazarus — persistence payload URL | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| https://update-teams.live/teams | Lazarus — fake Teams platform initial lure URL | 2026-04-21 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
+| moonzonet.com | MuddyWater (Mango Sandstorm) — C2 domain; malware component download and backdoor callback | 2026-03 | [The Hacker News](https://thehackernews.com/2026/05/muddywater-uses-microsoft-teams-to.html) |
+| uploadfiler.com | MuddyWater (Mango Sandstorm) — C2 domain; file exfiltration and payload staging | 2026-03 | [The Hacker News](https://thehackernews.com/2026/05/muddywater-uses-microsoft-teams-to.html) |
+| copy.fail | CVE-2026-31431 "Copy Fail" — Theori PoC disclosure site; dropper scripts reference this URL for payload retrieval | 2026-04-29 | [Theori / ReversingLabs](https://copy.fail/) |
 
 ### Email Indicators
 
 | Indicator | Threat | First Seen | Source |
 |-----------|--------|------------|--------|
-| Telegram messages impersonating Zoom/Teams/Meet with fake "connection fix" terminal instructions (from compromised contacts) | Lazarus / Mach-O Man — initial access vector | 2026-04 | [ANY.RUN](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/) |
-| Cross-industry fake event invitation phishing emails with ZIP attachments delivering credential stealers targeting U.S. companies | ClickFix infostealer campaign (broader, non-Lazarus overlap) | 2026-05 | [ANY.RUN Phishing](https://any.run/cybersecurity-blog/us-fake-invitation-phishing/) |
+| External Teams chat requests impersonating "IT Helpdesk" / "IT Support" from unmanaged tenants | MuddyWater — initial social engineering access vector; Teams external chat from unknown/unmanaged tenant | 2026-03 | [Xcitium Threat Labs](https://threatlabsnews.xcitium.com/blog/muddywater-leverages-microsoft-teams-for-credential-theft-in-false-flag-ransomware-attack/) |
+| Code-signing cert Subject CN: "Donald Gay" | MuddyWater — authenticode cert used to sign `ms_upd.exe` downloader; previously used on Fakeset/CastleLoader malware | 2026-03 | [The Hacker News](https://thehackernews.com/2026/05/muddywater-uses-microsoft-teams-to.html) |
 
 ## YARA Rules
 
 ```yara
-rule Lazarus_MachOMan_macOS_Stealer_Kit {
+/*
+    YARA Rules: CVE-2026-31431 "Copy Fail" — Detection Suite
+    Linux kernel local privilege escalation via AF_ALG + authencesn + splice()
+    page-cache scratch-write primitive.
+
+    Authors    : ReversingLabs Threat Research; Malware Utkonos
+    Date       : 2026-04-30
+    Reference  : https://www.reversinglabs.com/blog/copy-fail-5-yara-rules
+                 https://copy.fail/
+    TLP        : CLEAR
+    CVE        : CVE-2026-31431
+*/
+
+rule CopyFail_PoC_Theori_Exact : CVE_2026_31431 exploit lpe linux
+{
     meta:
-        author      = "Mauro Eldritch (BCA LTD / Bitso Quetzal Team) — adapted by Acentry TI"
-        date        = "2026-04-21"
-        description = "Detects components of the Lazarus 'Mach-O Man' macOS credential-theft kit: Go-based Mach-O binaries (teamsSDK.bin, macrasv2, minst2.bin, D1*.bin profiler) identified by Go runtime artifacts, geniex-client namespace strings, and self-destruction command sequences."
-        reference   = "https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/"
+        description = "Detects original Theori copy_fail_exp.py PoC for CVE-2026-31431 (Copy Fail Linux LPE) — HIGH confidence"
+        author      = "ReversingLabs Threat Research"
+        date        = "2026-04-30"
+        version     = "1.0"
+        severity    = "HIGH"
+        confidence  = "HIGH"
         tlp         = "CLEAR"
-        hash1       = "871d8f92b008a75607c9f1feb4922b9a02ac7bd2ed61b71ca752a5bed5448bf3"
-        hash2       = "85bed283ba95d40d99e79437e6a3161336c94ec0acbc0cd38599d0fc9b2e393c"
+        reference   = "https://copy.fail/"
+        cve         = "CVE-2026-31431"
+        hash_sha256 = "a567d09b15f6e4440e70c9f2aa8edec8ed59f53301952df05c719aa3911687f9"
+
     strings:
-        $go_http    = "Go-http-client" ascii
-        $geniex1    = "geniex-client/core" ascii
-        $geniex2    = "geniex-client/protocol" ascii
-        $geniex3    = "geniex_client_sleep_state" ascii
-        $destruct   = "Die command received, initiating self-destruction" ascii
-        $onedrive   = "com.onedrive.launcher" ascii
-        $c2_path1   = "/localencode" ascii
-        $c2_path2   = "/payload" ascii
-        $hobocopy   = "hobocopy_%d" ascii
-        $buildid    = "XSnX8a5Y1OweX0Ob6lfO" ascii
+        $import_alias   = "import os as g,zlib,socket as s" ascii
+        $aead_algo      = "authencesn(hmac(sha256),cbc(aes))" ascii
+        $aead_key       = "0800010000000010" ascii
+        $zlib_magic     = { 78 DA }
+        $target_su      = "/usr/bin/su" ascii
+        $shellcode_blob = "78daab77f571" ascii nocase
+
     condition:
-        (uint32(0) == 0xFEEDFACF or uint32(0) == 0xCEFAEDFE) and
-        (
-            ($go_http and 2 of ($geniex1, $geniex2, $geniex3)) or
-            ($destruct and $onedrive) or
-            (3 of ($c2_path1, $c2_path2, $hobocopy, $buildid, $geniex1, $geniex2))
-        )
+        filesize < 10KB and
+        $import_alias and
+        $aead_algo and
+        $aead_key and
+        $target_su and
+        ($shellcode_blob or $zlib_magic)
 }
 
-rule Lazarus_ClickFix_HTML_FakeCaptcha {
+
+rule CopyFail_Primitive_Python : CVE_2026_31431 exploit lpe linux hunting
+{
     meta:
-        author      = "Toni_Dujmovic (ReversingLabs) — adapted by Acentry TI"
-        date        = "2026-03-18"
-        description = "Detects ClickFix HTML lure pages that trick users into copying and executing malicious PowerShell via fake CAPTCHA/verification prompts. Used extensively by Lazarus Group and other threat actors in 2026 campaigns targeting macOS and Windows."
-        reference   = "https://www.reversinglabs.com/blog/clickfix-yara-rule"
+        description = "Detects Python scripts using AF_ALG authencesn + os.splice() primitive — catches renamed/refactored variants (MEDIUM confidence)"
+        author      = "ReversingLabs Threat Research"
+        date        = "2026-04-30"
+        version     = "1.0"
+        severity    = "HIGH"
+        confidence  = "MEDIUM"
         tlp         = "CLEAR"
+        reference   = "https://xint.io/blog/copy-fail-linux-distributions"
+        cve         = "CVE-2026-31431"
+
     strings:
-        $ps_exec1   = "powershell" nocase ascii wide
-        $ps_exec2   = "cmd.exe /c" nocase ascii
-        $ps_exec3   = "mshta" nocase ascii
-        $verify1    = "Verify you are human" nocase ascii
-        $verify2    = "I'm not a robot" nocase ascii
-        $verify3    = "CAPTCHA" nocase ascii
-        $copy1      = "navigator.clipboard.writeText" ascii
-        $copy2      = "document.execCommand('copy')" ascii
-        $run_hint1  = "Press Win+R" nocase ascii
-        $run_hint2  = "Open Run" nocase ascii
-        $run_hint3  = "paste in terminal" nocase ascii
+        $aead_algo  = "authencesn(hmac(sha256),cbc(aes))" ascii
+        $splice1    = "os.splice" ascii
+        $splice2    = "from os import splice" ascii
+        $af_alg_int = "socket(38," ascii
+        $af_alg_con = "AF_ALG" ascii
+        $aead_bind1 = ".bind((\"aead\"" ascii
+        $aead_bind2 = ".bind(('aead'" ascii
+
     condition:
-        filesize < 2MB and
-        (1 of ($ps_exec*)) and
-        (1 of ($verify*)) and
-        (1 of ($copy*)) and
-        (1 of ($run_hint*))
+        filesize < 500KB and
+        $aead_algo and
+        (1 of ($splice1, $splice2)) and
+        (1 of ($af_alg_int, $af_alg_con)) and
+        (1 of ($aead_bind1, $aead_bind2))
 }
 
-rule DragonForce_Ransomware_Encryptor {
+
+rule CopyFail_Shellcode_Reference_1 : CVE_2026_31431 shellcode lpe linux
+{
     meta:
-        author      = "petstuk (GitHub) — adapted by Acentry TI"
-        date        = "2025-06-01"
-        description = "Detects DragonForce ransomware encryptor samples identified from MalwareBazaar corpus. DragonForce (aliases: FireFlame, FuryStorm) is a RaaS cartel active in healthcare, telecom, retail, and engineering verticals globally."
-        reference   = "https://github.com/petstuk/DragonForceRansomwareYARA"
+        author      = "Malware Utkonos / cited by ReversingLabs Threat Research"
+        date        = "2026-04-30"
+        description = "Detects CopyFail shellcode: setuid(0) [syscall 105], execve [syscall 59], exit [syscall 60] in x86-64 ELF"
+        reference   = "https://www.reversinglabs.com/blog/copy-fail-5-yara-rules"
         tlp         = "CLEAR"
+        cve         = "CVE-2026-31431"
+
     strings:
-        $ransom_ext = ".dragonforce_encrypted" ascii nocase
-        $note1      = "DragonForce" ascii
-        $note2      = "README_DRAGONFORCE" ascii nocase
-        $onion1     = "dragonforce" ascii nocase
-        $mutex1     = "DragonForce_Mutex" ascii
-        $pdb1       = "dragonforce" ascii nocase
+        $op1 = { b0 69 0f 05 }
+        // mov al, 0x69 ; syscall  →  setuid(0)
+        $op2 = { 6a 3b 58 99 0f 05 }
+        // push 0x3b ; pop rax ; cdq ; syscall  →  execve
+        $op3 = { 6a 3c 58 0f 05 }
+        // push 0x3c ; pop rax ; syscall  →  exit
+
     condition:
-        uint16(0) == 0x5A4D and
-        (
-            2 of ($ransom_ext, $note1, $note2, $mutex1) or
-            ($onion1 and $pdb1) or
-            (3 of them)
-        )
+        all of them
 }
 ```
 
 ## Recommended Actions
 
-- [ ] **SOC — Hunt:** Search EDR/SIEM for macOS processes executing from `$TMPDIR` with Go User-Agent strings (`Go-http-client`), LaunchAgent plist creation under `~/Library/LaunchAgents/com.onedrive.*`, and outbound connections to 172.86.113.102 or 144.172.114.220. Deploy `Lazarus_MachOMan_macOS_Stealer_Kit` YARA to macOS fleet scanning.
-- [ ] **SOC — Hunt:** Search for ClickFix HTML delivery via proxy/email gateway logs — look for pages containing `navigator.clipboard.writeText` combined with CAPTCHA-themed language. Deploy `Lazarus_ClickFix_HTML_FakeCaptcha` YARA to email and web proxy.
-- [ ] **SOC — Hunt:** Run threat hunts for Volt Typhoon LOLBin patterns: `netsh`, `wmic`, `ntdsutil` invoked by unusual parent processes; FRP client binaries masquerading as legitimate software; lateral movement via WMI or SMB from non-standard hosts.
-- [ ] **SOC — Detect:** Enable signatures for CVE-2026-20182 exploitation attempts against Cisco SD-WAN UDP/12346 (vdaemon service); alert on any unauthenticated authentication events in SD-WAN controller logs.
-- [ ] **IT / Patch Mgmt — Priority 1:** Apply Cisco Catalyst SD-WAN patch for CVE-2026-20182 immediately (CVSS 10.0, actively exploited, KEV deadline already passed).
-- [ ] **IT / Patch Mgmt — Priority 2:** Patch Linux "Copy Fail" (CVE-2026-31431) — upgrade kernel to ≥ 6.18.22 / 7.0 across all cloud and on-premises Linux workloads; `modprobe -r algif_aead` as emergency interim on hosts that cannot be immediately patched.
-- [ ] **IT / Patch Mgmt — Priority 3:** Apply Fortinet FortiClient EMS hotfix for CVE-2026-35616 (versions 7.4.5–7.4.6 affected); full patch in 7.4.7.
-- [ ] **IT / Patch Mgmt — Priority 4:** Deploy Microsoft May 2026 Patch Tuesday across all Windows environments, prioritizing internet-facing systems, domain controllers (CVE-2026-41089 Netlogon RCE), Dynamics 365 on-prem (CVE-2026-42898), and DNS clients (CVE-2026-41096).
-- [ ] **IT / Patch Mgmt — Priority 5:** Apply PAN-OS hotfix for CVE-2026-0300 (Captive Portal RCE); restrict web management interface to trusted management CIDRs if patching is delayed.
-- [ ] **IT — macOS Hardening:** Enforce policies preventing unsigned/ad-hoc signed binaries from executing in `$TMPDIR`; audit user LaunchAgents for unauthorized plist entries (`com.onedrive.launcher`); train staff on ClickFix social engineering patterns — particularly fake meeting-platform terminal prompts delivered via Telegram.
-- [ ] **Leadership:** DragonForce claimed AdvancedHEALTH on May 16 — any clients in U.S. healthcare should assess third-party vendor exposure and ensure ransomware playbooks are current. The Lazarus crypto theft wave ($500M+ in 30 days) elevates risk for clients with crypto treasury or DeFi exposure. Recommend tabletop exercise for DPRK-attributed financial theft scenarios.
+- [ ] **SOC — Hunt:** Search EDR/SIEM for processes invoking `AF_ALG` socket with `authencesn(hmac(sha256),cbc(aes))` algorithm string on Linux hosts; alert on `splice()` syscall sequences from unprivileged users followed by SUID binary execution. Deploy CopyFail YARA rules above to endpoint AV and file analysis pipelines.
+- [ ] **SOC — Hunt:** Block/alert on outbound connections to `moonzonet.com`, `uploadfiler.com`, and `172.86.126.208`; search EDR telemetry for `ms_upd.exe`, `DWAgent`, and `AnyDesk` launched as children of suspicious parent processes; review Microsoft Teams external-chat logs for unsolicited contacts from unmanaged tenants.
+- [ ] **SOC — Hunt:** Review Cisco SD-WAN audit logs for unauthorized SSH key additions to `vmanage-admin`, unexpected NETCONF sessions on TCP/830, and inbound connections from untrusted peers to UDP/12346. Compare authorized SSH keys against known-good baseline; treat any unrecognized key as IOC.
+- [ ] **SOC — Detect:** Enable or tune detection signatures for CVE-2026-0300 (PAN-OS); monitor for anomalous traffic to ports 6081/6082 on PAN-OS devices; deploy Palo Alto Threat Prevention signatures per vendor guidance.
+- [ ] **IT / Patch Mgmt — P1 (Emergency):** Patch Cisco Catalyst SD-WAN Controller and Manager per advisory `cisco-sa-sdwan-rpa2-v69WY2SW`; if patching is delayed, immediately restrict UDP/12346 to trusted SD-WAN peers via ACL.
+- [ ] **IT / Patch Mgmt — P1 (Emergency):** Apply Linux kernel patches for CVE-2026-31431 on all production Linux systems; prioritize multi-tenant, cloud, CI/CD, and Kubernetes environments where container escape via shared-kernel LPE has highest blast radius.
+- [ ] **IT / Patch Mgmt — P1 (Emergency):** Upgrade PAN-OS to 12.1.4-h5, 11.2.7-h13, 11.2.10-h6, or later fixed releases; restrict Captive Portal to trusted internal zones pending patch completion.
+- [ ] **IT / Patch Mgmt — P2 (Urgent):** Upgrade Ivanti EPMM to 12.6.1.1, 12.7.0.1, or 12.8.0.1; rotate all EPMM admin credentials — prior CVE-2026-1281/1340 compromises may have harvested credentials being reused in current CVE-2026-6973 attacks.
+- [ ] **IT / Identity:** Audit Microsoft Teams external access policies; restrict or disable external chat requests from unmanaged/unknown tenants; enforce conditional access requiring compliant device before screen-sharing sessions are permitted; educate helpdesk staff on IT-impersonation social engineering tactics.
+- [ ] **Leadership:** Three simultaneous CVSS ≥9.0 KEV-listed vulnerabilities under active exploitation affecting network edge devices (Cisco SD-WAN, PAN-OS) represent elevated risk of perimeter breach; recommend briefing CISO and reviewing IR playbooks for network edge compromise scenarios. The Gentlemen ransomware group's rapid rise warrants inclusion in threat modeling for non-US clients.
 
 ## Sources & References
 
-1. [Lazarus "Mach-O Man" Malware: What CISOs Need to Know — ANY.RUN / Mauro Eldritch](https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/)
-2. [CISA Adds Cisco SD-WAN CVE-2026-20182 to KEV — The Hacker News](https://thehackernews.com/2026/05/cisco-catalyst-sd-wan-controller-auth.html)
-3. [CISA Adds Linux Root Access Bug CVE-2026-31431 to KEV — The Hacker News](https://thehackernews.com/2026/05/cisa-adds-actively-exploited-linux-root.html)
-4. [CVE-2026-31431 "Copy Fail" FAQ — Security Boulevard](https://securityboulevard.com/2026/04/copy-fail-cve-2026-31431-frequently-asked-questions-about-linux-kernel-privilege-escalation-vulnerability/)
-5. [Nine-year-old Linux kernel flaw CVE-2026-31431 — Help Net Security](https://www.helpnetsecurity.com/2026/04/30/copyfail-linux-lpe-vulnerability-cve-2026-31431/)
-6. [Fortinet FortiClient EMS Zero-Day CVE-2026-35616 — CyberScoop](https://cyberscoop.com/fortinet-forticlient-ems-zero-day-cve-2026-35616-hotfix-known-exploited/)
-7. [Microsoft May 2026 Patch Tuesday: 120 Vulnerabilities — BleepingComputer](https://www.bleepingcomputer.com/news/microsoft/microsoft-may-2026-patch-tuesday-fixes-120-flaws-no-zero-days/)
-8. [Microsoft May Patch Tuesday: Netlogon & DNS RCE — Vulert](https://vulert.com/blog/microsoft-patch-tuesday-may-2026-dns-netlogon-rce/)
-9. [Ivanti EPMM CVE-2026-6973 Exploited in the Wild — Security Online](https://securityonline.info/ivanti-epmm-exploited-in-the-wild-cve-2026-6973-zero-day/)
-10. [PAN-OS Captive Portal Zero-Day CVE-2026-0300 — Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/)
-11. [Salt Typhoon TTPs, Detection, and Defense — Vectra AI](https://www.vectra.ai/resources/vectra-ai-threat-briefing-salt-typhoon)
-12. [Volt Typhoon 2026: Still Active in US Critical Infrastructure — Cybelangel](https://cybelangel.com/blog/volt-typhoon/)
-13. [PRC State-Sponsored Actors Compromise U.S. Critical Infrastructure — CISA AA24-038A](https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-038a)
-14. [DragonForce Strikes AdvancedHEALTH — DeXpose](https://www.dexpose.io/dragonforce-strikes-advancedhealth-in-ransomware-attack/)
-15. [DragonForce Targets Plan.com — DeXpose](https://www.dexpose.io/dragonforce-targets-plan-in-ransomware-attack/)
-16. [North Korea's Lazarus Targets macOS Users via ClickFix — Dark Reading](https://www.darkreading.com/threat-intelligence/north-koreas-lazarus-targets-macos-users-clickfix)
-17. [Lazarus Group $290M KelpDAO Crypto Theft — UPI](https://www.upi.com/Top_News/World-News/2026/04/22/KelpDAO-LayerZero-North-Korea-crypto-hack-theft-Lazarus-Group/6151776848419/)
-18. [ClickFix YARA Rule Catches What AV Misses — ReversingLabs](https://www.reversinglabs.com/blog/clickfix-yara-rule)
-19. [DragonForce YARA Rules — petstuk / GitHub](https://github.com/petstuk/DragonForceRansomwareYARA)
-20. [ClickFix Campaign: Fake macOS Utilities Delivering Infostealers — Microsoft Security Blog](https://www.microsoft.com/en-us/security/blog/2026/05/06/clickfix-campaign-uses-fake-macos-utilities-lures-deliver-infostealers/)
+1. [CISA Adds Cisco SD-WAN CVE-2026-20182 to KEV — The Hacker News](https://thehackernews.com/2026/05/cisa-adds-cisco-sd-wan-cve-2026-20182.html)
+2. [Active Exploitation of Cisco Catalyst SD-WAN by UAT-8616 — Cisco Talos](https://blog.talosintelligence.com/uat-8616-sd-wan/)
+3. [Cisco Security Advisory: CVE-2026-20182](https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-sdwan-rpa2-v69WY2SW)
+4. [CVE-2026-20182 Emergency Patch Guide — Rapid7](https://www.rapid7.com/blog/post/ve-cve-2026-20182-critical-authentication-bypass-cisco-catalyst-sd-wan-controller-fixed/)
+5. [Cisco Patches Another SD-WAN Zero-Day (6th in 2026) — SecurityWeek](https://www.securityweek.com/cisco-patches-another-sd-wan-zero-day-the-sixth-exploited-in-2026/)
+6. [CVE-2026-31431 "Copy Fail": Linux Root Privilege Escalation — Microsoft Security Blog](https://www.microsoft.com/en-us/security/blog/2026/05/01/cve-2026-31431-copy-fail-vulnerability-enables-linux-root-privilege-escalation/)
+7. [Copy Fail Flaw: 5 YARA Rules for Detection — ReversingLabs](https://www.reversinglabs.com/blog/copy-fail-5-yara-rules)
+8. [CVE-2026-31431 Copy Fail FAQ — Tenable](https://www.tenable.com/blog/copy-fail-cve-2026-31431-frequently-asked-questions-about-linux-kernel-privilege-escalation)
+9. [CERT-EU Advisory 2026-005 — Copy Fail](https://cert.europa.eu/publications/security-advisories/2026-005/)
+10. [CVE-2026-0300: PAN-OS Captive Portal RCE — Unit 42](https://unit42.paloaltonetworks.com/captive-portal-zero-day/)
+11. [Root-Level RCE in Palo Alto Firewalls Exploited — Help Net Security](https://www.helpnetsecurity.com/2026/05/06/palo-alto-firewalls-vulnerability-exploited-cve-2026-0300/)
+12. [CVE-2026-6973 Ivanti EPMM RCE Under Active Exploitation — The Hacker News](https://thehackernews.com/2026/05/ivanti-epmm-cve-2026-6973-rce-under.html)
+13. [Ivanti EPMM Zero-Day CVE-2026-6973 — Help Net Security](https://www.helpnetsecurity.com/2026/05/08/ivanti-epmm-zero-day-cve-2026-6973/)
+14. [Critical Vulnerabilities in Ivanti EPMM CVE-2026-1281/1340 — Unit 42](https://unit42.paloaltonetworks.com/ivanti-cve-2026-1281-cve-2026-1340/)
+15. [MuddyWater Uses Microsoft Teams to Steal Credentials — The Hacker News](https://thehackernews.com/2026/05/muddywater-uses-microsoft-teams-to.html)
+16. [MuddyWater Leverages Teams for Credential Theft — Xcitium Threat Labs](https://threatlabsnews.xcitium.com/blog/muddywater-leverages-microsoft-teams-for-credential-theft-in-false-flag-ransomware-attack/)
+17. [MuddyWater / G0069 — MITRE ATT&CK](https://attack.mitre.org/groups/G0069/)
+18. [The State of Ransomware Q1 2026 — Check Point Research](https://research.checkpoint.com/2026/the-state-of-ransomware-q1-2026/)
+19. [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
+20. [Active Ivanti Exploitation Traced to Single Bulletproof IP — GreyNoise](https://www.greynoise.io/blog/active-ivanti-exploitation)
 
 ---
 
-<sub>© Acentry Security · Daily Threat Intelligence Feed · 2026-05-19 · Generated automatically — verify before operational use.</sub>
+<sub>© Acentry Security · Daily Threat Intelligence Feed · 2026-05-18 · Generated automatically — verify before operational use.</sub>
