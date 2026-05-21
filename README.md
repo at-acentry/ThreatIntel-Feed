@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
+</p>
+
 <h1 align="center">Acentry Security · Threat Intelligence Feed</h1>
 
 A daily, analyst-curated threat intelligence brief covering the most critical cybersecurity risks of the last 24–72 hours: actively exploited CVEs, APT / state-sponsored campaign activity, indicators of compromise (IOCs), and YARA rules ready for SOC ingestion.
@@ -8,12 +12,13 @@ Each morning a fresh brief is published to **[`latest.md`](latest.md)**; a dated
 
 ## Latest Brief
 
-**[2026-05-20 — Daily Threat Intelligence Feed](latest.md)**
+**[2026-05-21 — Daily Threat Intelligence Feed](latest.md)**
 
 ---
 
 ## Recent Archives
 
+- [2026-05-21](archive/2026-05-21.md)
 - [2026-05-20](archive/2026-05-20.md)
 - [2026-05-19](archive/2026-05-19.md)
 - [2026-05-18](archive/2026-05-18.md)
