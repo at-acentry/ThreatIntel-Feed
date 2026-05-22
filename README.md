@@ -4,7 +4,7 @@
 
 <h1 align="center">ACENTRY SECURITY — ThreatIntel Feed</h1>
 
-This repository contains Acentry Security's automated **Daily Threat Intelligence Feed** — a SOC/IR-oriented brief published every day covering critical CVEs, APT/threat actor activity, indicators of compromise (IOCs), YARA detection rules, and recommended actions. Each brief is generated from live sources including CISA KEV, vendor PSIRTs, and leading threat intelligence vendors (Cisco Talos, Group-IB, Mandiant, CrowdStrike, Palo Alto Unit 42, and others). Content is TLP:CLEAR and intended for Acentry clients and their security teams.
+This repository contains Acentry Security's automated **Daily Threat Intelligence Feed** — a SOC/IR-oriented brief published every day covering critical CVEs, APT/threat actor activity, indicators of compromise (IOCs), phishing and malware distribution domains, YARA detection rules, and recommended actions. Each brief is generated from live sources including CISA KEV, vendor PSIRTs, and leading threat intelligence vendors (Cisco Talos, Group-IB, Mandiant, CrowdStrike, Palo Alto Unit 42, and others). Content is TLP:CLEAR and intended for Acentry clients and their security teams.
 
 **[→ View Latest Brief](latest.md)**
 
