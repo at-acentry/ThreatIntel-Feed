@@ -2,22 +2,15 @@
   <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
 </p>
 
-<h1 align="center">Acentry Security · Threat Intelligence Feed</h1>
+<h1 align="center">ACENTRY SECURITY — ThreatIntel Feed</h1>
 
-A daily, analyst-curated threat intelligence brief covering the most critical cybersecurity risks of the last 24–72 hours: actively exploited CVEs, APT / state-sponsored campaign activity, indicators of compromise (IOCs), and YARA rules ready for SOC ingestion.
+This repository contains Acentry Security's automated **Daily Threat Intelligence Feed** — a SOC/IR-oriented brief published every day covering critical CVEs, APT/threat actor activity, indicators of compromise (IOCs), YARA detection rules, and recommended actions. Each brief is generated from live sources including CISA KEV, vendor PSIRTs, and leading threat intelligence vendors (Cisco Talos, Group-IB, Mandiant, CrowdStrike, Palo Alto Unit 42, and others). Content is TLP:CLEAR and intended for Acentry clients and their security teams.
 
-Each morning a fresh brief is published to **[`latest.md`](latest.md)**; a dated copy is preserved under [`archive/`](archive/).
-
----
-
-## Latest Brief
-
-**[2026-05-21 — Daily Threat Intelligence Feed](latest.md)**
-
----
+**[→ View Latest Brief](latest.md)**
 
 ## Recent Archives
 
+- [2026-05-22](archive/2026-05-22.md)
 - [2026-05-21](archive/2026-05-21.md)
 - [2026-05-20](archive/2026-05-20.md)
 - [2026-05-19](archive/2026-05-19.md)
