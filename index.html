@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THREAT INTEL // DAILY FEED</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --green: #00ff41;
+      --green-dim: #00cc33;
+      --green-faint: #003b0f;
+      --bg: #0a0a0a;
+      --bg-panel: #0d0d0d;
+      --border: #1a3a1a;
+      --text: #c8ffc8;
+      --text-dim: #5a9e5a;
+      --red: #ff2233;
+      --yellow: #ffcc00;
+      --cyan: #00eeff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,10,0.96);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--green);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      color: var(--text-dim);
+      font-weight: normal;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+      50%       { opacity: 0.4; box-shadow: 0 0 2px var(--green); }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    #clock {
+      color: var(--green-dim);
+      font-size: 12px;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Meta bar ── */
+    .meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .meta-bar .tag {
+      color: var(--green);
+      border: 1px solid var(--green-faint);
+      padding: 2px 8px;
+      font-size: 10px;
+      letter-spacing: 2px;
+    }
+
+    /* ── Feed content ── */
+    #feed {
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
+      padding: 32px 36px;
+      position: relative;
+    }
+
+    #feed::before {
+      content: 'INTEL//FEED';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: var(--bg-panel);
+      padding: 0 8px;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--green-dim);
+    }
+
+    /* ── Markdown styles ── */
+    #feed h1 {
+      color: var(--green);
+      font-size: 20px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #feed h2 {
+      color: var(--cyan);
+      font-size: 15px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 32px 0 12px;
+      padding-left: 12px;
+      border-left: 3px solid var(--cyan);
+    }
+
+    #feed h3 {
+      color: var(--yellow);
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 24px 0 10px;
+    }
+
+    #feed h4, #feed h5, #feed h6 {
+      color: var(--text);
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin: 16px 0 8px;
+      text-transform: uppercase;
+    }
+
+    #feed p {
+      color: var(--text);
+      margin-bottom: 14px;
+      max-width: 72ch;
+    }
+
+    #feed ul, #feed ol {
+      margin: 0 0 16px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    #feed ul li::before {
+      content: '▸ ';
+      color: var(--green-dim);
+    }
+
+    #feed ol {
+      counter-reset: ol-counter;
+    }
+
+    #feed ol li {
+      counter-increment: ol-counter;
+    }
+
+    #feed ol li::before {
+      content: counter(ol-counter, decimal-leading-zero) '. ';
+      color: var(--green-dim);
+    }
+
+    #feed li {
+      margin-bottom: 6px;
+      color: var(--text);
+      padding-left: 4px;
+    }
+
+    #feed a {
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    #feed a:hover {
+      border-bottom-color: var(--cyan);
+    }
+
+    #feed strong, #feed b {
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    #feed em, #feed i {
+      color: var(--yellow);
+      font-style: normal;
+    }
+
+    #feed code {
+      background: #0d1f0d;
+      color: var(--green);
+      padding: 1px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      border: 1px solid var(--green-faint);
+    }
+
+    #feed pre {
+      background: #060f06;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green-dim);
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    #feed pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-size: 12px;
+      color: var(--green-dim);
+    }
+
+    #feed blockquote {
+      border-left: 3px solid var(--red);
+      padding: 8px 16px;
+      margin: 16px 0;
+      background: rgba(255, 34, 51, 0.05);
+      color: #ffaaaa;
+    }
+
+    #feed hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    #feed table {
+      display: block;
+      overflow-x: auto;
+      max-width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    #feed th {
+      background: var(--green-faint);
+      color: var(--green);
+      padding: 8px 12px;
+      text-align: left;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+    }
+
+    #feed td {
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    #feed tr:nth-child(even) td {
+      background: rgba(0, 255, 65, 0.02);
+    }
+
+    /* ── Loading / Error states ── */
+    .state {
+      padding: 60px 0;
+      text-align: center;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    .state .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--green-faint);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-msg {
+      color: var(--red);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 32px;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-align: center;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <div class="status-dot"></div>
+      <div class="logo">THREAT<span>//</span>INTEL</div>
+    </div>
+    <div class="header-right">
+      <span>DAILY FEED</span>
+      <span id="clock"></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="meta-bar">
+      <span id="feed-date">LOADING...</span>
+      <span class="tag">TLP:WHITE</span>
+    </div>
+
+    <div id="feed">
+      <div class="state" id="loading">
+        <div class="spinner"></div>
+        <div>FETCHING INTEL FEED...</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>THREAT INTEL FEED &nbsp;|&nbsp; UPDATED DAILY &nbsp;|&nbsp; HANDLE WITH CARE</footer>
+
+  <script>
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent =
+        now.toUTCString().replace('GMT', 'UTC');
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Load and render latest.md
+    async function loadFeed() {
+      const feedEl = document.getElementById('feed');
+      const dateEl = document.getElementById('feed-date');
+
+      try {
+        const res = await fetch('/latest.md', { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const md = await res.text();
+
+        // Extract date from first heading or use today
+        const dateMatch = md.match(/^#\s+(.+)/m);
+        const label = dateMatch
+          ? dateMatch[1].toUpperCase()
+          : new Date().toDateString().toUpperCase();
+        dateEl.textContent = label;
+
+        feedEl.innerHTML = marked.parse(md);
+      } catch (err) {
+        feedEl.innerHTML = `
+          <div class="state">
+            <div class="error-msg">[ ERROR ] FAILED TO LOAD FEED</div>
+            <div style="margin-top:12px;font-size:11px;">${err.message}</div>
+          </div>`;
+        dateEl.textContent = 'FEED UNAVAILABLE';
+      }
+    }
+
+    loadFeed();
+  </script>
+</body>
+</html>
