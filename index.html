@@ -115,7 +115,7 @@
 
     #clock {
       color: var(--green-dim);
-      font-size: 12px;
+      font-size: 14px;
     }
 
     /* ── Layout ── */
@@ -405,11 +405,23 @@
     // Clock
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock').textContent =
-        now.toUTCString().replace('GMT', 'UTC');
+
+      const easternDateTime = now.toLocaleString("en-US", {
+        timeZone: "America/New_York", 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        weekday: 'short', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: false
+      });
+      
+      document.getElementById('clock').textContent = easternDateTime;
     }
     updateClock();
-    setInterval(updateClock, 1000);
+    setInterval(updateClock, 1000); //update clock every second
 
     // Load and render latest.md
     async function loadFeed() {
