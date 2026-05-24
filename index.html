@@ -418,7 +418,7 @@
         hour12: false
       });
       
-      document.getElementById('clock').textContent = easternDateTime;
+      document.getElementById('clock').textContent = easternDateTime.replace(/,/g, ''); //removing commas
     }
     updateClock();
     setInterval(updateClock, 1000); //update clock every second
