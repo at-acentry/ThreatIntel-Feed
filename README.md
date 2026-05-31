@@ -1,20 +1,12 @@
-<p align="center">
-  <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
-</p>
+# Acentry Security — Daily Threat Intelligence Feed
 
-<h1 align="center">ACENTRY SECURITY</h1>
-<h3 align="center">Daily Threat Intelligence Feed</h3>
+Acentry Security's Daily Threat Intelligence Feed delivers analyst-curated threat intelligence every day, covering critical CVEs, APT/threat actor campaigns, software supply chain attacks, indicators of compromise (IOCs), and phishing/malware distribution infrastructure. Each brief is written for security operations teams and is designed for direct operational use — from SOC triage to patch prioritization to executive risk communications.
 
----
-
-This repository contains Acentry Security's automated Daily Threat Intelligence Feed — a curated, analyst-reviewed brief published each day covering critical CVEs, APT and threat actor activity, software supply chain attacks, indicators of compromise (IOCs), and recommended defensive actions. Briefs are written in GitHub-Flavored Markdown and sourced from CISA, vendor PSIRTs, major threat intelligence firms, and open-source intelligence feeds. All content is TLP:CLEAR and intended for Acentry clients and security operations teams.
-
-## Latest Brief
-
-[📄 View Latest Brief (2026-05-30)](latest.md)
+**Latest brief:** [latest.md](latest.md)
 
 ## Recent Archives
 
+- [2026-05-31](archive/2026-05-31.md)
 - [2026-05-30](archive/2026-05-30.md)
 - [2026-05-29](archive/2026-05-29.md)
 - [2026-05-28](archive/2026-05-28.md)
