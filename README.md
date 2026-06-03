@@ -2,17 +2,19 @@
   <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
 </p>
 
-<h1 align="center">ACENTRY SECURITY</h1>
-<h3 align="center">Daily Threat Intelligence Feed</h3>
+<h1 align="center">Acentry Security — Daily Threat Intelligence Feed</h1>
 
----
+This repository publishes a daily threat intelligence brief produced by the Acentry Threat Intelligence Team. Each brief covers critical CVEs added to the CISA KEV catalog, APT and threat actor activity, software supply chain incidents, indicators of compromise (IOCs), and phishing/malware distribution domains — all sourced from authoritative security research and vendor advisories.
 
-This repository contains Acentry Security's Daily Threat Intelligence Feed — analyst-curated briefs covering critical CVEs, APT/threat actor activity, software supply chain attacks, indicators of compromise, and phishing/malware distribution domains. Each brief is generated daily and is classified TLP:CLEAR for Acentry clients and authorized recipients.
+**Classification:** TLP:CLEAR — For Acentry Clients
 
-**[→ View Latest Brief](latest.md)**
+## Latest Brief
+
+[View Today's Brief → latest.md](latest.md)
 
 ## Recent Archives
 
+- [2026-06-03](archive/2026-06-03.md)
 - [2026-06-02](archive/2026-06-02.md)
 - [2026-06-01](archive/2026-06-01.md)
 - [2026-05-31](archive/2026-05-31.md)
