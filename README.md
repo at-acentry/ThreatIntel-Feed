@@ -14,6 +14,7 @@ This repository publishes a daily threat intelligence brief produced by the Acen
 
 ## Recent Archives
 
+- [2026-06-04](archive/2026-06-04.md)
 - [2026-06-03](archive/2026-06-03.md)
 - [2026-06-02](archive/2026-06-02.md)
 - [2026-06-01](archive/2026-06-01.md)
