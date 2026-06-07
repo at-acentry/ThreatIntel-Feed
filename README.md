@@ -1,3 +1,5 @@
+<!-- Acentry Threat Intelligence Feed — README -->
+
 <p align="center">
   <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
 </p>
@@ -7,12 +9,15 @@
 
 ---
 
-This repository contains Acentry Security's automated daily threat intelligence briefs. Each brief covers critical CVEs added to the CISA Known Exploited Vulnerabilities catalog, active APT and threat actor campaigns, software supply chain incidents, indicators of compromise, and prioritized recommended actions for SOC, IT, DevSecOps, and leadership audiences. Briefs are generated daily and committed locally for review before manual push to the remote.
+This repository contains Acentry Security's automated Daily Threat Intelligence Feed. Each day, a new brief is generated covering critical CVEs, APT activity, software supply chain incidents, indicators of compromise, and phishing/malware distribution domains. Briefs are written for operational security teams and are classified TLP:CLEAR for distribution to Acentry clients. All content is sourced from authoritative feeds including CISA KEV, NVD, Mandiant, CrowdStrike, Cisco Talos, Unit 42, BleepingComputer, The Hacker News, URLhaus, and ThreatFox — verify indicators before operational use.
 
-**[View Latest Brief](latest.md)**
+## Latest Brief
+
+[📄 View Today's Brief → latest.md](latest.md)
 
 ## Recent Archives
 
+- [2026-06-07](archive/2026-06-07.md)
 - [2026-06-06](archive/2026-06-06.md)
 - [2026-06-05](archive/2026-06-05.md)
 - [2026-06-04](archive/2026-06-04.md)
