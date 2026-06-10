@@ -4,16 +4,15 @@
   <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
 </p>
 
-<h1 align="center">ACENTRY SECURITY — Threat Intelligence Feed</h1>
+<h1 align="center">Acentry Security — Daily Threat Intelligence Feed</h1>
 
-Acentry Security's Daily Threat Intelligence Feed delivers analyst-curated, GFM-formatted briefs covering the day's most significant CVEs, APT campaigns, software supply chain incidents, indicators of compromise, and phishing infrastructure. Each brief is generated daily and archived for historical reference. Content is classified TLP:CLEAR and intended for use by Acentry clients and their security teams.
+This repository contains Acentry Security's automated daily threat intelligence briefs, updated every morning with the latest CVEs under active exploitation, APT campaign activity, software supply chain incidents, indicators of compromise, and phishing/malware domain blocklists. Each brief is classified TLP:CLEAR and intended for Acentry clients and authorized security personnel. Content is generated from authoritative sources including CISA, NVD, vendor advisories, Mandiant, Unit 42, Rapid7, CrowdStrike, BleepingComputer, and Abuse.ch feeds — verify all indicators before operational use.
 
-## Latest Brief
-
-[View latest brief →](latest.md)
+**[→ View Latest Brief](latest.md)**
 
 ## Recent Archives
 
+- [2026-06-10](archive/2026-06-10.md)
 - [2026-06-09](archive/2026-06-09.md)
 - [2026-06-08](archive/2026-06-08.md)
 - [2026-06-07](archive/2026-06-07.md)
@@ -43,7 +42,6 @@ Acentry Security's Daily Threat Intelligence Feed delivers analyst-curated, GFM-
 - [2026-05-13](archive/2026-05-13.md)
 - [2026-05-12](archive/2026-05-12.md)
 - [2026-05-11](archive/2026-05-11.md)
-- [2026-05-10](archive/2026-05-10.md)
 
 ---
 
