@@ -12,6 +12,7 @@ This repository contains Acentry Security's automated daily threat intelligence 
 
 ## Recent Archives
 
+- [2026-06-11](archive/2026-06-11.md)
 - [2026-06-10](archive/2026-06-10.md)
 - [2026-06-09](archive/2026-06-09.md)
 - [2026-06-08](archive/2026-06-08.md)
@@ -41,8 +42,6 @@ This repository contains Acentry Security's automated daily threat intelligence 
 - [2026-05-14](archive/2026-05-14.md)
 - [2026-05-13](archive/2026-05-13.md)
 - [2026-05-12](archive/2026-05-12.md)
-- [2026-05-11](archive/2026-05-11.md)
-
 ---
 
 © Acentry Security
