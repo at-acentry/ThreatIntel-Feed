@@ -1,17 +1,17 @@
-<!-- Acentry Security ThreatIntel Feed -->
+<h1 align="center">ACENTRY SECURITY</h1>
+<h3 align="center">Daily Threat Intelligence Feed</h3>
 
-<p align="center">
-  <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
-</p>
+---
 
-<h1 align="center">Acentry Security — Daily Threat Intelligence Feed</h1>
+Acentry Security's Daily Threat Intelligence Feed delivers concise, analyst-curated security briefs covering critical CVEs, APT and threat actor activity, software supply chain attacks, indicators of compromise (IOCs), and phishing/malware distribution infrastructure. Each brief is published daily and classified TLP:CLEAR for distribution to Acentry clients. Content is sourced from CISA, NVD, vendor PSIRTs, leading threat intelligence vendors (Mandiant, CrowdStrike, Unit 42, Talos, Recorded Future), and open-source feeds including URLhaus, ThreatFox, and Abuse.ch. Intended for SOC analysts, IT/patch management teams, and security leadership.
 
-This repository contains Acentry Security's automated daily threat intelligence briefs, updated every morning with the latest CVEs under active exploitation, APT campaign activity, software supply chain incidents, indicators of compromise, and phishing/malware domain blocklists. Each brief is classified TLP:CLEAR and intended for Acentry clients and authorized security personnel. Content is generated from authoritative sources including CISA, NVD, vendor advisories, Mandiant, Unit 42, Rapid7, CrowdStrike, BleepingComputer, and Abuse.ch feeds — verify all indicators before operational use.
+## Latest Brief
 
-**[→ View Latest Brief](latest.md)**
+[**View Today's Brief → latest.md**](latest.md)
 
 ## Recent Archives
 
+- [2026-06-12](archive/2026-06-12.md)
 - [2026-06-11](archive/2026-06-11.md)
 - [2026-06-10](archive/2026-06-10.md)
 - [2026-06-09](archive/2026-06-09.md)
@@ -41,7 +41,7 @@ This repository contains Acentry Security's automated daily threat intelligence 
 - [2026-05-16](archive/2026-05-16.md)
 - [2026-05-14](archive/2026-05-14.md)
 - [2026-05-13](archive/2026-05-13.md)
-- [2026-05-12](archive/2026-05-12.md)
+
 ---
 
 © Acentry Security
