@@ -3,14 +3,13 @@
 
 ---
 
-Acentry Security's Daily Threat Intelligence Feed delivers concise, analyst-curated security briefs covering critical CVEs, APT and threat actor activity, software supply chain attacks, indicators of compromise (IOCs), and phishing/malware distribution infrastructure. Each brief is published daily and classified TLP:CLEAR for distribution to Acentry clients. Content is sourced from CISA, NVD, vendor PSIRTs, leading threat intelligence vendors (Mandiant, CrowdStrike, Unit 42, Talos, Recorded Future), and open-source feeds including URLhaus, ThreatFox, and Abuse.ch. Intended for SOC analysts, IT/patch management teams, and security leadership.
+Acentry Security's Daily Threat Intelligence Feed delivers analyst-curated briefings covering critical CVEs, APT and threat actor activity, software supply chain attacks, indicators of compromise, and phishing/malware domain blocklists. Each brief is generated daily, sourced from CISA KEV, leading threat intelligence vendors, and open-source intelligence feeds, and is formatted for direct operational use by SOC, IT, and security leadership teams.
 
-## Latest Brief
-
-[**View Today's Brief → latest.md**](latest.md)
+**Latest brief:** [2026-06-13](latest.md)
 
 ## Recent Archives
 
+- [2026-06-13](archive/2026-06-13.md)
 - [2026-06-12](archive/2026-06-12.md)
 - [2026-06-11](archive/2026-06-11.md)
 - [2026-06-10](archive/2026-06-10.md)
@@ -40,7 +39,6 @@ Acentry Security's Daily Threat Intelligence Feed delivers concise, analyst-cura
 - [2026-05-17](archive/2026-05-17.md)
 - [2026-05-16](archive/2026-05-16.md)
 - [2026-05-14](archive/2026-05-14.md)
-- [2026-05-13](archive/2026-05-13.md)
 
 ---
 
