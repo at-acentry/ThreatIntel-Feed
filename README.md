@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/acentry-logo.png" alt="Acentry Security" width="220">
+</p>
+
 <h1 align="center">ACENTRY SECURITY</h1>
 <h3 align="center">Daily Threat Intelligence Feed</h3>
 
@@ -5,10 +9,11 @@
 
 Acentry Security's Daily Threat Intelligence Feed delivers analyst-curated briefings covering critical CVEs, APT and threat actor activity, software supply chain attacks, indicators of compromise, and phishing/malware domain blocklists. Each brief is generated daily, sourced from CISA KEV, leading threat intelligence vendors, and open-source intelligence feeds, and is formatted for direct operational use by SOC, IT, and security leadership teams.
 
-**Latest brief:** [2026-06-13](latest.md)
+**Latest brief:** [2026-06-14](latest.md)
 
 ## Recent Archives
 
+- [2026-06-14](archive/2026-06-14.md)
 - [2026-06-13](archive/2026-06-13.md)
 - [2026-06-12](archive/2026-06-12.md)
 - [2026-06-11](archive/2026-06-11.md)
